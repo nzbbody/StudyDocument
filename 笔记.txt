@@ -794,47 +794,31 @@ new_lex->alter_info.create_list =
 9、啥时候读取呢？
 
 #####################################################################################################################
-linux nm命令
+nm命令
+1、示例代码
+	#include <stdio.h>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	void myprint()
+	{
+		printf("hello world");
+	}
+	
+	int main(int argc, char* argv[])
+	{
+		myprint();
+		return 0;
+	}
+2、niuzibin@ubuntu:~/work/test1/nm$ nm main
+3、nm -u main
+	显示main 中的未定义符号，需要和其他对象文件进行链接，如下：
+	niuzibin@ubuntu:~/work/test1/nm$ nm -u main
+                 w __gmon_start__
+                 w _ITM_deregisterTMCloneTable
+                 w _ITM_registerTMCloneTable
+                 w _Jv_RegisterClasses
+                 U __libc_start_main@@GLIBC_2.2.5
+                 U printf@@GLIBC_2.2.5
+#####################################################################################################################
 
 
 
