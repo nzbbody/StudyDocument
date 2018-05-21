@@ -819,6 +819,76 @@ nm命令
                  U __libc_start_main@@GLIBC_2.2.5
                  U printf@@GLIBC_2.2.5
 #####################################################################################################################
+编译的头文件和库文件路径
+1、编译，引用的头文件路径使用 -I
+	有一部分头文件路径，g++会默认引用，如何查看？
+	`g++ -print-prog-name=cc1plus` -v
+2、链接时使用-L指定库的路径，使用-l指定库，运行时使用LD_LIBRARY_PATH指定库的路径。
+	目前没有找到方法，显示g++默认引用的库文件路径。步骤是：
+	g++会去找-L
+	再找gcc的环境变量LIBRARY_PATH
+	再找内定的目录 /lib /usr/lib /usr/local/lib 这是当初compile gcc时写在程序内的
+3、由于g++搜索默认的头文件和库文件路径，所以有时候不指定，构建也是OK的。
+
+#####################################################################################################################
+MySQL的Embedded模式
+1、一般情况下，我们通过CS模式，调用MySQL客户端mysqlclient和MySQL服务交互。
+2、但是这种C/S的数据服务不适合于一些轻量级的应用，可以使用MySQL的Embedded模式，相当于以库的方式调用。
+3、这两种方式的区别是：
+	CS模式，客户端链接mysqlclient库，调用mysqlclient的接口，经过网络和mysql服务交互。
+	Embedded模式，客户端链接mysqld库，调用mysqld的接口，都在在本地操作。
+4、CS模式
+	sudo apt-get install libmysqlclient-dev
+	g++ -o Embed Embed.cc `mysql_config --include --libs` -std=c++11
+5、Embedded模式
+	sudo apt install libmysqld-dev
+	g++ -o Embed Embed.cc `mysql_config --include --libmysqld-libs` -std=c++11
+6、可以看一下，mysql_config的输出，如下：
+	niuzibin@ubuntu:~/work/CPP_2/Embed$ mysql_config
+	Usage: /usr/bin/mysql_config [OPTIONS]
+	Options:
+			--cflags         [-I/usr/include/mysql -DBIG_JOINS=1  -fno-strict-aliasing    -g -DNDEBUG]
+			--include        [-I/usr/include/mysql]
+			--libs           [-L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -lz -lm -ldl]
+			--libs_r         [-L/usr/lib/x86_64-linux-gnu -lmysqlclient_r -lpthread -lz -lm -ldl]
+			--plugindir      [/usr/lib/mysql/plugin]
+			--socket         [/var/run/mysqld/mysqld.sock]
+			--port           [0]
+			--version        [5.5.59]
+			--libmysqld-libs [-L/usr/lib/x86_64-linux-gnu -lmysqld -lpthread -lz -lm -lwrap -lcrypt -ldl -laio]
+			--variable=VAR   VAR is one of:
+					pkgincludedir [/usr/include/mysql]
+					pkglibdir     [/usr/lib/x86_64-linux-gnu]
+					plugindir     [/usr/lib/mysql/plugin]
+#####################################################################################################################
+cmake 添加头文件的搜索路径
+INCLUDE_DIRECTORIES()
+
+#####################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
 
 
 
