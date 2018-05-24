@@ -1,2 +1,125 @@
 ﻿###########################################################################################################################
-测试一把test
+CPP遍历的方法汇总
+1、示例代码如下：
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+// C语言的惯用方法
+void traversal_1(vector<int>& intVec)
+{
+    for (int i = 0; i < intVec.size(); i++)
+    {
+        printf("%d, ",intVec[i]);
+    }
+    printf("\n");
+}
+
+// for循环使用迭代器
+void traversal_2(vector<int>& intVec)
+{
+    for (vector<int>::iterator iter = intVec.begin(); iter != intVec.end(); ++iter)
+    {
+        printf("%d, ", *iter);
+    }
+    printf("\n");
+}
+
+// 迭代器使用auto
+void traversal_3(vector<int>& intVec)
+{
+    for (auto iter = intVec.begin(); iter != intVec.end(); ++iter)
+    {
+        printf("%d, ", *iter);
+    }
+    printf("\n");
+}
+CPP遍历的方法汇总
+
+// foreach加lambda
+// 特别注意: 这里的cbegin 返回const迭代器
+void traversal_4(vector<int>& intVec)
+{
+
+    for_each(intVec.cbegin(), intVec.cend(), [](const int& val)-> void {cout <<val<<", "; });
+    printf("\n");
+}
+
+// for区间遍历
+// 注意: 这种方法是 traversal_3的缩写, auto val = *iter
+// 需要注意这里的 auto val, val是迭代器元素的副本, 如果for(auto& val : intVec) 这样的话, 就是迭代器元素的引用
+// 也就是说,auto可以理解为文本替换,但是只能替换成类型, 如果要表达const, 引用等有关的语义,必须加上相应的修饰词
+void traversal_5(vector<int>& intVec)
+{
+    for(auto val : intVec)
+    {
+        printf("%d, ", val);
+    }
+
+    printf("\n");
+}
+
+
+
+int main()
+{
+    vector<int> intVec = { 0, 1, 2, 3, 4, 5 };
+
+    traversal_1(intVec);
+    traversal_2(intVec);
+    traversal_3(intVec);
+    traversal_4(intVec);
+    traversal_5(intVec);
+
+    return 0;
+}
+
+###########################################################################################################################
+cmake注意事项
+1、指令不区分大小写，变量必须大写，如下：
+	message(STATUS "the binary dir is ${PROJECT_BINARY_DIR}")
+	MESSAGE(STATUS "the binary dir is ${PROJECT_BINARY_DIR}")
+	message大小写都OK，但是STATUS和PROJECT_BINARY_DIR必须大写
+	为了方便阅读，推荐写法如下：
+	message(STATUS "the binary dir is ${PROJECT_BINARY_DIR}")
+	注：当不知道某个变量的取值时，使用message打印出来是个好办法。
+###########################################################################################################################
+如何测试embed_tool
+1、先清空shadow目录和远端mysql中的数据库
+2、启动proxy，调用测试脚本，生成shadow目录
+3、把【1】中的aaa目录清空，scp拷贝shadow过去，导出aaa.sql文件。
+4、导出xml文件，清空shadow_2，导入shadow_2
+5、把【1】中的aaa目录清空，scp拷贝shadow过去，导出bbb.sql文件。
+6、对照一把sql文件
+7、使用shadow进行测试
+8、然后再使用shadow_2测试
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
