@@ -97,6 +97,220 @@ cmake注意事项
 8、然后再使用shadow_2测试
 	
 
+###########################################################################################################################
+密码学有关
+密码学6个重要工具：对称密码、公钥密码、单向散列函数、消息认证码、数字签名和伪随机数生成器
+
+###########################################################################################################################
+git分支有关
+1、git是分布式版本库，每个分布式都有：
+	工作区、暂存区、版本库
+	本地和远端并没有本质区别
+2、每个分布式版本库，都有多个分支，这些分支之间可以建立关联，也可以没有关联
+3、以本地版本库说明，
+	git clone 		只clone远端的master，到本地的master
+	git branch 		当前的分支
+	git branch -a	所有的分支，本地和远端的
+4、如何clone远端的分支？
+	niuzibin@ubuntu:~/work/FLKDBEnc/FLKWebCrypt$ git branch -a
+	* master
+	  remotes/origin/HEAD -> origin/master
+	  remotes/origin/master
+	  remotes/origin/ywn
+	
+	niuzibin@ubuntu:~/work/FLKDBEnc/FLKWebCrypt$ git checkout -b ywn origin/ywn
+	Branch ywn set up to track remote branch ywn from origin.
+	Switched to a new branch 'ywn'
+	
+	niuzibin@ubuntu:~/work/FLKDBEnc/FLKWebCrypt$ git branch -a                 
+	  master
+	* ywn
+	  remotes/origin/HEAD -> origin/master
+	  remotes/origin/master
+	  remotes/origin/ywn
+###########################################################################################################################
+https不可用
+1、https不可用
+	niuzibin@ubuntu:~/work/FLKDBEnc$ sudo git clone https://192.168.10.99/FLKDBEnc/FLKWebCrypt
+	Cloning into 'FLKWebCrypt'...
+	fatal: unable to access 'https://192.168.10.99/FLKDBEnc/FLKWebCrypt/': gnutls_handshake() failed: Handshake failed
+2、使用git@方式
+	https://192.168.10.99/profile/keys
+	找到generate it
+	本地执行 
+	ssh-keygen -t rsa -C "niuzibin@flksec.com"
+	cat ~/.ssh/id_rsa.pub
+3、产生的结果拷贝到 Key，然后add
+4、本地执行 git clone git@192.168.10.99:FLKDBEnc/FLKWebCrypt.git	
+###########################################################################################################################
+CLion缺少库，需要export怎么办？
+1、CLion报错，could not find java
+2、加上export就可以了，但是在CLion不知道在哪里添加
+3、换一种思路，在 .bashrc增加export，然后在shell脚本中，执行 source .bashrc
+	进入clion的执行路径，执行
+	/home/niuzibin/work/apps/clion-2016.1.1/bin/clion.sh
+
+###########################################################################################################################
+kms密钥管理服务器
+1、kms是密钥管理服务器，需要向kms获取密钥，是否支持用户设置？
+2、要向kms获取密钥，需要一组参数，这组参数确定密钥
+3、客户端和kms交互，需要会话密钥，这就涉及密钥配送的问题，解决这个问题，使用公钥密码，向服务端请求公钥。
+4、客户端请求，使用服务端的公钥SM2，对会话密钥加密。
+5、考虑到会话密钥的
+
+
+3、获取过程是经过网络的，如果请求是明文，第三方可以截取到，存在风险。
+4、怎么解决？
+	客户端的请求要加密，服务端先传一个公钥。
+5、服务端传输的密钥，也需要加密
+	需要客户端传输密钥
+6、
+	
+	
+	
+	
+###########################################################################################################################
+wiki编辑
+1、添加主题
+	http://192.168.10.70/doku.php?id=sidebar
+
+###########################################################################################################################
+cmake指定安装目录CMAKE_INSTALL_PREFIX
+1、cmake指定安装目录，使用CMAKE_INSTALL_PREFIX来指定。CMAKE_INSTALL_PREFIX默认值是 /usr/local/
+2、第一种办法：
+	cmake -DCMAKE_INSTALL_PREFIX=/usr ../
+3、第二种办法：
+	修改cmake文件，加入：SET(CMAKE_INSTALL_PREFIX < install_path >) 
+	特别注意，使用这种办法，必须 要加在 PROJECT(< project_name >) 之后，否者可能不起作用。
+###########################################################################################################################
+打包deb包
+1、示例脚本如下：
+#! /bin/sh
+set -x
+set -e
+
+# read -p "please input version like 1.0.0:  " version
+name="masterkeymgr"
+version="1.0.0"
+underline="_"
+platform="amd64"
+projName=${name}${underline}${version}${underline}${platform}
+debName=${projName}".deb"
+
+
+# 脚本所在目录
+shPath=$(cd $(dirname $0);pwd)
+cd $shPath/../
+
+if [  ! -d "./dist" ] ; then
+        mkdir "./dist"
+fi
+
+cd ./dist
+rm -fr *
+
+mkdir DEBIAN
+cat>"./DEBIAN/control"<<EOF
+package: $name
+version: $version
+architecture: $platform
+maintainer: niuzibin
+description: this is masterkeymgr deb
+EOF
+
+mkdir -p usr/lib
+cp $shPath/../lib/libmasterkeymgr.so ./usr/lib
+
+mkdir -p usr/include
+cp $shPath/../src/masterkeymgr/masterkeymgr.h ./usr/include
+
+cd $shPath/../
+sudo dpkg -b dist $debName
+
+
+
+###########################################################################################################################
+CPP11的thread
+1、先看C++98的线程测试代码
+	#include <pthread.h>
+	#include <unistd.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+	using namespace std;
+	
+	void* TestThread1(void*);
+	
+	int main(int argc, char* argv[])
+	{
+		pthread_t hThread;
+		pthread_attr_t pAttr;
+		pthread_attr_init(&pAttr);
+		pthread_attr_setdetachstate(&pAttr,PTHREAD_CREATE_DETACHED);
+		pthread_create(&hThread, &pAttr, TestThread1, NULL);
+	
+		printf("主线程：你好帅！！！！\n");
+		getchar();
+		return 0;
+	}
+	
+	void* TestThread1(void*)
+	{
+		sleep(5);
+		exit(0);
+	}
+2、编译，运行如下：
+	root@ubuntu:/home/disk1/CPP_2/TestThread# g++ -o main_98 main_98.cpp -lpthread
+	root@ubuntu:/home/disk1/CPP_2/TestThread# ./main_98
+3、C++11的线程测试代码
+	#include <thread>
+	#include <unistd.h>
+	using namespace std;
+	
+	void TestThread1();
+	
+	int main(int argc, char* argv[])
+	{
+		thread t1(TestThread1);
+		t1.detach();
+		printf("主线程：你好帅！！！！\n");
+		getchar();
+		return 0;
+	}
+	
+	void TestThread1()
+	{
+		sleep(5);
+		exit(0);
+	}
+4、编译，运行如下：
+	root@ubuntu:/home/disk1/CPP_2/TestThread# g++ -o main_11 main_11.cpp -lpthread     
+	In file included from /usr/include/c++/4.8/thread:35:0,
+					from main_11.cpp:1:
+	/usr/include/c++/4.8/bits/c++0x_warning.h:32:2: error: #error This file requires compiler and library support for the ISO C++ 2011 standard. This support is currently experimental, and must be enabled with the -std=c++11 or -std=gnu++11 compiler options.
+	#error This file requires compiler and library support for the \
+	^
+	main_11.cpp: In function ‘int main(int, char**)’:
+	main_11.cpp:9:5: error: ‘thread’ was not declared in this scope
+		thread t1(TestThread1);
+	编译报错，使用C++11的thread，需要添加选项 -std=c++11
+5、再次测试如下：
+	root@ubuntu:/home/disk1/CPP_2/TestThread# g++ -o main_11 main_11.cpp -std=c++11 -lpthread
+	root@ubuntu:/home/disk1/CPP_2/TestThread# ./main_11
+	terminate called after throwing an instance of 'std::system_error'
+		what():  Enable multithreading to use std::thread: Operation not permitted
+	Aborted (core dumped)
+6、运行报错，查了一下资料，链接pthread的时候，必须去掉 l，如下：
+	root@ubuntu:/home/disk1/CPP_2/TestThread# g++ -o main_11 main_11.cpp -std=c++11 -pthread 
+	root@ubuntu:/home/disk1/CPP_2/TestThread# ./main_11
+7、那么问题来了，-lpthread和-pthread到底什么区别？
+	使用 g++ -v 输出详细信息，进行比较，发现存在一些区别。
+	-pthread多了一些 -pthread， -D_REENTRANT
+	
+	
+
+
+###########################################################################################################################
+CPP11的thread
 
 
 
@@ -123,3 +337,24 @@ cmake注意事项
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
