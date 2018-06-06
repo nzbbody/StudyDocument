@@ -218,10 +218,10 @@ maintainer: niuzibin
 description: this is masterkeymgr deb
 EOF
 
-mkdir -p usr/lib
+mkdir -p ./usr/lib
 cp $shPath/../lib/libmasterkeymgr.so ./usr/lib
 
-mkdir -p usr/include
+mkdir -p ./usr/include
 cp $shPath/../src/masterkeymgr/masterkeymgr.h ./usr/include
 
 cd $shPath/../
@@ -337,6 +337,94 @@ CPP11的thread
 	c、Bob的公钥，加上Trent的数字签名，就是证书。通过Trent获取到Bob的公钥。
 	d、有了Bob的公钥，二者就可以加密通信了。
 	注意：这里传输的公钥，不需要加密，只是保证Alice能够获取合法的公钥。
+
+
+###########################################################################################################################
+重要的错误
+安装sudo apt install libmysqld-dev
+导致assert(0 == mysql_thread_init());//初始化线程环境，断言失败
+
+
+
+###########################################################################################################################
+同时生成静态库和动态库
+
+
+
+
+###########################################################################################################################
+log命令
+1、显示log
+	git log
+2、显示最近的两次提交log
+	git log -2
+3、显示每次提交的内容差异
+	git log -2 -p
+4、显示某个文件的内容差异
+	git log -2 -p .gitignore
+5、也可以通过show，显示某一个提交的内容差异，如下：
+	root@ubuntu:/home/disk1/GitTest# git log -1 -p .gitignore                         
+	commit 12fdff5b6cd259cff2952fce978f1555635d4bfc
+	Author: nzbbody <nzbbody@163.com>
+	Date:   Wed Jun 6 10:27:04 2018 +0800
+	
+		增加忽略的文件
+	
+	diff --git a/.gitignore b/.gitignore
+	index 259148f..645ee14 100644
+	--- a/.gitignore
+	+++ b/.gitignore
+	@@ -30,3 +30,6 @@
+	*.exe
+	*.out
+	*.app
+	+
+	+# Other temp file
+	+*.bak
+	root@ubuntu:/home/disk1/GitTest# git show 12fdff5b6cd259cff2952fce978f1555635d4bfc .gitignore
+	commit 12fdff5b6cd259cff2952fce978f1555635d4bfc
+	Author: nzbbody <nzbbody@163.com>
+	Date:   Wed Jun 6 10:27:04 2018 +0800
+	
+		增加忽略的文件
+	
+	diff --git a/.gitignore b/.gitignore
+	index 259148f..645ee14 100644
+	--- a/.gitignore
+	+++ b/.gitignore
+	@@ -30,3 +30,6 @@
+	*.exe
+	*.out
+	*.app
+	+
+	+# Other temp file
+	+*.bak
+###########################################################################################################################
+merge
+1、如果没有分叉，从dev合并，就是 Fast-forward
+2、本地合并，存在冲突。
+	
+###########################################################################################################################
+origin
+1、origin是个远程地址，通过下面的语句可以看到
+	root@ubuntu:/home/disk1/GitTest# git remote -v
+	origin  https://github.com/nzbbody/GitTest (fetch)
+	origin  https://github.com/nzbbody/GitTest (push)
+###########################################################################################################################
+git介绍
+1、svn是集中式版本控制，git是分布式版本控制
+2、svn记录文件的差异，git是包括文件的快照，如果没有变化，从上一次引用下来。
+
+
+
+
+
+
+
+
+
+
+
 
 
 
