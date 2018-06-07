@@ -166,7 +166,16 @@ kms密钥管理服务器
 	需要客户端传输密钥
 6、
 	
-	
+###########################################################################################################################
+svn与git对照
+1、svn是集中式，git是分布式
+2、svn保存文件的差异，git保存文件的快照，对于修改的文件，做一个副本，也就是写时拷贝（COW）
+3、svn创建分支，相当于整体拷贝，git创建分支，在任意一个提交点（commit point）开启分支
+
+
+
+
+
 	
 	
 ###########################################################################################################################
@@ -414,6 +423,66 @@ origin
 git介绍
 1、svn是集中式版本控制，git是分布式版本控制
 2、svn记录文件的差异，git是包括文件的快照，如果没有变化，从上一次引用下来。
+
+
+
+
+###########################################################################################################################
+ope join
+create database yytest;
+use yytest;
+create table course(id enc int, name enc varchar(64), chinese enc int, `math` enc int, english enc int);
+
+insert into course(id,name,chinese,math,english) value(1,"Andy", 70,80,90);
+insert into course(id,name,chinese,math,english) value(1,"Bill", 74,71,70);
+insert into course(id,name,chinese,math,english) value(1,"Caroline", 80,85,89);
+insert into course(id,name,chinese,math,english) value(1,"David", 80,75,74);
+insert into course(id,name,chinese,math,english) value(1,"Eric", 79,76,84);
+insert into course(id,name,chinese,math,english) value(1,"Frank", 85,72,73);
+
+
+select * from course;
+select * from course where chinese > 75;
+
+UPDATE `yytest`.table_PTKLRHEBIO    SET BIYJSNVOVGoOrder = cast(cryptdb_decrypt_int_sem(`yytest`.`table_PTKLRHEBIO`.`BIYJSNVOVGoOrder` AS `BIYJSNVOVGoOrder`,'.SO\Z..>.s{^[....',`yytest`.`table_PTKLRHEBIO`.`cdb_saltOZVHWSXTKN` AS `cdb_saltOZVHWSXTKN`) as unsigned);
+
+select * from course where chinese > math;
+
+
+放到后台执行
+flkcdp > log.txt &
+
+###########################################################################################################################
+git fetch
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
