@@ -1,90 +1,4 @@
-﻿###########################################################################################################################
-CPP遍历的方法汇总
-1、示例代码如下：
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-// C语言的惯用方法
-void traversal_1(vector<int>& intVec)
-{
-    for (int i = 0; i < intVec.size(); i++)
-    {
-        printf("%d, ",intVec[i]);
-    }
-    printf("\n");
-}
-
-// for循环使用迭代器
-void traversal_2(vector<int>& intVec)
-{
-    for (vector<int>::iterator iter = intVec.begin(); iter != intVec.end(); ++iter)
-    {
-        printf("%d, ", *iter);
-    }
-    printf("\n");
-}
-
-// 迭代器使用auto
-void traversal_3(vector<int>& intVec)
-{
-    for (auto iter = intVec.begin(); iter != intVec.end(); ++iter)
-    {
-        printf("%d, ", *iter);
-    }
-    printf("\n");
-}
-CPP遍历的方法汇总
-
-// foreach加lambda
-// 特别注意: 这里的cbegin 返回const迭代器
-void traversal_4(vector<int>& intVec)
-{
-
-    for_each(intVec.cbegin(), intVec.cend(), [](const int& val)-> void {cout <<val<<", "; });
-    printf("\n");
-}
-
-// for区间遍历
-// 注意: 这种方法是 traversal_3的缩写, auto val = *iter
-// 需要注意这里的 auto val, val是迭代器元素的副本, 如果for(auto& val : intVec) 这样的话, 就是迭代器元素的引用
-// 也就是说,auto可以理解为文本替换,但是只能替换成类型, 如果要表达const, 引用等有关的语义,必须加上相应的修饰词
-void traversal_5(vector<int>& intVec)
-{
-    for(auto val : intVec)
-    {
-        printf("%d, ", val);
-    }
-
-    printf("\n");
-}
-
-
-
-int main()
-{
-    vector<int> intVec = { 0, 1, 2, 3, 4, 5 };
-
-    traversal_1(intVec);
-    traversal_2(intVec);
-    traversal_3(intVec);
-    traversal_4(intVec);
-    traversal_5(intVec);
-
-    return 0;
-}
-
-###########################################################################################################################
-cmake注意事项
-1、指令不区分大小写，变量必须大写，如下：
-	message(STATUS "the binary dir is ${PROJECT_BINARY_DIR}")
-	MESSAGE(STATUS "the binary dir is ${PROJECT_BINARY_DIR}")
-	message大小写都OK，但是STATUS和PROJECT_BINARY_DIR必须大写
-	为了方便阅读，推荐写法如下：
-	message(STATUS "the binary dir is ${PROJECT_BINARY_DIR}")
-	注：当不知道某个变量的取值时，使用message打印出来是个好办法。
+﻿
 ###########################################################################################################################
 如何测试embed_tool
 1、先清空shadow目录和远端mysql中的数据库
@@ -101,33 +15,6 @@ cmake注意事项
 密码学有关
 密码学6个重要工具：对称密码、公钥密码、单向散列函数、消息认证码、数字签名和伪随机数生成器
 
-###########################################################################################################################
-git分支有关
-1、git是分布式版本库，每个分布式都有：
-	工作区、暂存区、版本库
-	本地和远端并没有本质区别
-2、每个分布式版本库，都有多个分支，这些分支之间可以建立关联，也可以没有关联
-3、以本地版本库说明，
-	git clone 		只clone远端的master，到本地的master
-	git branch 		当前的分支
-	git branch -a	所有的分支，本地和远端的
-4、如何clone远端的分支？
-	niuzibin@ubuntu:~/work/FLKDBEnc/FLKWebCrypt$ git branch -a
-	* master
-	  remotes/origin/HEAD -> origin/master
-	  remotes/origin/master
-	  remotes/origin/ywn
-	
-	niuzibin@ubuntu:~/work/FLKDBEnc/FLKWebCrypt$ git checkout -b ywn origin/ywn
-	Branch ywn set up to track remote branch ywn from origin.
-	Switched to a new branch 'ywn'
-	
-	niuzibin@ubuntu:~/work/FLKDBEnc/FLKWebCrypt$ git branch -a                 
-	  master
-	* ywn
-	  remotes/origin/HEAD -> origin/master
-	  remotes/origin/master
-	  remotes/origin/ywn
 ###########################################################################################################################
 https不可用
 1、https不可用
@@ -166,187 +53,11 @@ kms密钥管理服务器
 	需要客户端传输密钥
 6、
 	
-###########################################################################################################################
-svn与git对照
-1、svn是集中式，git是分布式
-2、svn保存文件的差异，git保存文件的快照，对于修改的文件，做一个副本，也就是写时拷贝（COW）
-3、svn创建分支，相当于整体拷贝，git创建分支，在任意一个提交点（commit point）开启分支
-
-
-
-
-
-	
 	
 ###########################################################################################################################
 wiki编辑
 1、添加主题
 	http://192.168.10.70/doku.php?id=sidebar
-
-###########################################################################################################################
-cmake指定安装目录CMAKE_INSTALL_PREFIX
-1、cmake指定安装目录，使用CMAKE_INSTALL_PREFIX来指定。CMAKE_INSTALL_PREFIX默认值是 /usr/local/
-2、第一种办法：
-	cmake -DCMAKE_INSTALL_PREFIX=/usr ../
-3、第二种办法：
-	修改cmake文件，加入：SET(CMAKE_INSTALL_PREFIX < install_path >) 
-	特别注意，使用这种办法，必须 要加在 PROJECT(< project_name >) 之后，否者可能不起作用。
-###########################################################################################################################
-打包deb包
-1、示例脚本如下：
-#! /bin/sh
-set -x
-set -e
-
-# read -p "please input version like 1.0.0:  " version
-name="masterkeymgr"
-version="1.0.0"
-underline="_"
-platform="amd64"
-projName=${name}${underline}${version}${underline}${platform}
-debName=${projName}".deb"
-
-
-# 脚本所在目录
-shPath=$(cd $(dirname $0);pwd)
-cd $shPath/../
-
-if [  ! -d "./dist" ] ; then
-        mkdir "./dist"
-fi
-
-cd ./dist
-rm -fr *
-
-mkdir DEBIAN
-cat>"./DEBIAN/control"<<EOF
-package: $name
-version: $version
-architecture: $platform
-maintainer: niuzibin
-description: this is masterkeymgr deb
-EOF
-
-mkdir -p ./usr/lib
-cp $shPath/../lib/libmasterkeymgr.so ./usr/lib
-
-mkdir -p ./usr/include
-cp $shPath/../src/masterkeymgr/masterkeymgr.h ./usr/include
-
-cd $shPath/../
-sudo dpkg -b dist $debName
-
-
-
-###########################################################################################################################
-CPP11的thread
-1、先看C++98的线程测试代码
-	#include <pthread.h>
-	#include <unistd.h>
-	#include <stdio.h>
-	#include <stdlib.h>
-	using namespace std;
-	
-	void* TestThread1(void*);
-	
-	int main(int argc, char* argv[])
-	{
-		pthread_t hThread;
-		pthread_attr_t pAttr;
-		pthread_attr_init(&pAttr);
-		pthread_attr_setdetachstate(&pAttr,PTHREAD_CREATE_DETACHED);
-		pthread_create(&hThread, &pAttr, TestThread1, NULL);
-	
-		printf("主线程：你好帅！！！！\n");
-		getchar();
-		return 0;
-	}
-	
-	void* TestThread1(void*)
-	{
-		sleep(5);
-		exit(0);
-	}
-2、编译，运行如下：
-	root@ubuntu:/home/disk1/CPP_2/TestThread# g++ -o main_98 main_98.cpp -lpthread
-	root@ubuntu:/home/disk1/CPP_2/TestThread# ./main_98
-3、C++11的线程测试代码
-	#include <thread>
-	#include <unistd.h>
-	using namespace std;
-	
-	void TestThread1();
-	
-	int main(int argc, char* argv[])
-	{
-		thread t1(TestThread1);
-		t1.detach();
-		printf("主线程：你好帅！！！！\n");
-		getchar();
-		return 0;
-	}
-	
-	void TestThread1()
-	{
-		sleep(5);
-		exit(0);
-	}
-4、编译，运行如下：
-	root@ubuntu:/home/disk1/CPP_2/TestThread# g++ -o main_11 main_11.cpp -lpthread     
-	In file included from /usr/include/c++/4.8/thread:35:0,
-					from main_11.cpp:1:
-	/usr/include/c++/4.8/bits/c++0x_warning.h:32:2: error: #error This file requires compiler and library support for the ISO C++ 2011 standard. This support is currently experimental, and must be enabled with the -std=c++11 or -std=gnu++11 compiler options.
-	#error This file requires compiler and library support for the \
-	^
-	main_11.cpp: In function ‘int main(int, char**)’:
-	main_11.cpp:9:5: error: ‘thread’ was not declared in this scope
-		thread t1(TestThread1);
-	编译报错，使用C++11的thread，需要添加选项 -std=c++11
-5、再次测试如下：
-	root@ubuntu:/home/disk1/CPP_2/TestThread# g++ -o main_11 main_11.cpp -std=c++11 -lpthread
-	root@ubuntu:/home/disk1/CPP_2/TestThread# ./main_11
-	terminate called after throwing an instance of 'std::system_error'
-		what():  Enable multithreading to use std::thread: Operation not permitted
-	Aborted (core dumped)
-6、运行报错，查了一下资料，链接pthread的时候，必须去掉 l，如下：
-	root@ubuntu:/home/disk1/CPP_2/TestThread# g++ -o main_11 main_11.cpp -std=c++11 -pthread 
-	root@ubuntu:/home/disk1/CPP_2/TestThread# ./main_11
-7、那么问题来了，-lpthread和-pthread到底什么区别？
-	使用 g++ -v 输出详细信息，进行比较，发现存在一些区别。
-	-pthread多了一些 -pthread， -D_REENTRANT
-	
-	
-
-
-###########################################################################################################################
-密码学概述
-1、对称密码，加解密的密钥相同，存在密钥配送问题。
-2、解决密钥配送问题，使用非对称密码，公钥是公开的，用于加密，私钥自己保存，用于解密。
-3、非对称密码，存在效率问题。因此，使用非对称的公钥，加密对称的密钥，对称密钥加密业务数据。这就是混合密码。
-4、检查消息是否一致，也就是是否被篡改，使用单向散列函数，也叫消息摘要函数，hash函数。
-5、单向散列函数可以辨别出"篡改"，但是不能辨别出"伪装"，需要确认是不是Alice发送的消息。
-6、问题的原因是，单向散列函数，每个人计算的结果都一样，Bob无法确认是不是Alice发的
-	解决办法是Alice和Bob共享一个密钥，其他人不知道，计算hash值的时候，这个密钥作为一个参数，
-	必须知道密钥，才能计算出相同的hash值，这就是消息认证码。
-7、相对于单向散列函数，消息认证码多了一个共享的密钥。
-8、消息认证码存在问题，一个是共享密钥的配送问题，还存在一个问题，无法防止否认。
-	Bob说Alice发了某个消息，Alice说没有发过，并且Alice说，Bob有密钥，也能生成这个消息。
-9、如何解决这个问题？
-	也就是说，只有Alice才能生成这个消息，其他人不能生成这个消息，但是可以验证这个消息是不是Alice生成的。
-	参考非对称加密，其他人用公钥加密，只有我能使用私钥解密。反过来也是一样的，我要私钥加密，其他人使用公钥可以解密。
-	只有我自己保存私钥，其他人能用公钥解密，就说明这个消息是我生成的，因为其他人没有私钥，是无法生成这个消息的。
-	这就是数字签名。私钥加密生成签名，公钥解密验证签名。
-10、正确使用数字签名，有一个前提，那就是验证签名的公钥，必须是正确的。如果这个公钥是伪造的，数字签名也会验证失败。
-11、这就要解决公钥的合法性，公钥的获取需要一个可信任的第三方认证机构。
-	第三方对Bob的公钥加上数字签名，发给Alice，Alice获取Bob的公钥。
-	可信的第三方也就意味着，Alice已知Trent合法的公钥，通过Trent来获取Bob的公钥。
-12、具体流程是：
-	a、Bob向Trent注册自己的公钥，这个环节是人工保证可靠性，Trent会通过电话、邮箱、或者面对面，和Bob确认。
-	b、Alice已知Trent的公钥，向Trent请求Bob的公钥，Trent为了证明是自己发送的消息，会对Bob的公钥，加上数字签名，发给Alice
-	c、Bob的公钥，加上Trent的数字签名，就是证书。通过Trent获取到Bob的公钥。
-	d、有了Bob的公钥，二者就可以加密通信了。
-	注意：这里传输的公钥，不需要加密，只是保证Alice能够获取合法的公钥。
-
 
 ###########################################################################################################################
 重要的错误
@@ -360,54 +71,6 @@ CPP11的thread
 
 
 
-
-###########################################################################################################################
-log命令
-1、显示log
-	git log
-2、显示最近的两次提交log
-	git log -2
-3、显示每次提交的内容差异
-	git log -2 -p
-4、显示某个文件的内容差异
-	git log -2 -p .gitignore
-5、也可以通过show，显示某一个提交的内容差异，如下：
-	root@ubuntu:/home/disk1/GitTest# git log -1 -p .gitignore                         
-	commit 12fdff5b6cd259cff2952fce978f1555635d4bfc
-	Author: nzbbody <nzbbody@163.com>
-	Date:   Wed Jun 6 10:27:04 2018 +0800
-	
-		增加忽略的文件
-	
-	diff --git a/.gitignore b/.gitignore
-	index 259148f..645ee14 100644
-	--- a/.gitignore
-	+++ b/.gitignore
-	@@ -30,3 +30,6 @@
-	*.exe
-	*.out
-	*.app
-	+
-	+# Other temp file
-	+*.bak
-	root@ubuntu:/home/disk1/GitTest# git show 12fdff5b6cd259cff2952fce978f1555635d4bfc .gitignore
-	commit 12fdff5b6cd259cff2952fce978f1555635d4bfc
-	Author: nzbbody <nzbbody@163.com>
-	Date:   Wed Jun 6 10:27:04 2018 +0800
-	
-		增加忽略的文件
-	
-	diff --git a/.gitignore b/.gitignore
-	index 259148f..645ee14 100644
-	--- a/.gitignore
-	+++ b/.gitignore
-	@@ -30,3 +30,6 @@
-	*.exe
-	*.out
-	*.app
-	+
-	+# Other temp file
-	+*.bak
 ###########################################################################################################################
 merge
 1、如果没有分叉，从dev合并，就是 Fast-forward
@@ -490,14 +153,7 @@ OPE存在的问题
 
 
 
-
 create table t1(id enc int);
-
-
-
-
-
-
 
 
 
@@ -522,8 +178,6 @@ diff命令
 加密模式的区别
 1、SENSITIVE等级最高，BEST_EFFORT相对于SENSITIVE，只是多了一个洋葱，支持剥到明文，PLAIN就是明文。
 2、BEST_EFFORT和SENSITIVE，会根据实际需要配置洋葱层，在使用的过程中，为了支持，会剥掉洋葱。
-
-
 
 
 
@@ -562,88 +216,6 @@ DETFactory::deserialize(unsigned int id, const SerialLayer &sl)
 }
 
 
-###########################################################################################################################
-git理解
-1、本地的修改状态
-   工作区----【add】------->暂存区----【commit】-------->版本库
-   工作区<---【checkout】---暂存区<---【reset HEAD】-----版本库
-   
-   
-###########################################################################################################################
-是不是只能merge提交的分支？
-1、创建test1分支，修改文件，add、commit
-2、转到master分支，也修改文件，这个是时候，diff test1 master，看到的是提交的差异
-	注意：diff比较分支，是比较已经提交的分支。
-3、先不提交，merge试一下，报错
-	error: Your local changes to the following files would be overwritten by merge:
-			readme.txt
-	Please, commit your changes or stash them before you can merge.
-	Aborting
-4、提示：要求提交之后，再merge，如下：
-	root@ubuntu:/home/disk1/GitTest# git add readme.txt 
-	root@ubuntu:/home/disk1/GitTest# git commit -m"master"
-	[master 217992a] master
-	1 file changed, 1 insertion(+)
-	root@ubuntu:/home/disk1/GitTest# git merge test1      
-	Auto-merging readme.txt
-	CONFLICT (content): Merge conflict in readme.txt
-	Automatic merge failed; fix conflicts and then commit the result.
-5、这个时候，merge有冲突，需要解决冲突
-	解决冲突，然后再进行 add、commit
-6、结论：
-	当前分支修改后不提交，merge报错，要求先提交，再merge
-	提交后再merge，可能会冲突，需要解决冲突，然后add commit
-###########################################################################################################################
-看看fetch做了什么事情？
-1、git fetch origin master，通过fetch前后的文本对照和抓包，发现
-	fetch会获取远程分支的commit id，也就是本地的文件FETCH_HEAD，以及远程 origin/master的最新文件内容
-2、然后merge origin/master，会合并 origin/master 到 merge
-	也就是说，merge origin/master 并没有网络传输
-3、git pull origin master = git fetch origin master + merge origin/master
-	但是，一般不要使用pull，在背后进行merge总是不好的。
-###########################################################################################################################
-push可能会有冲突
-1、甲修改，commit push
-2、乙修改，commit push，报错
-	To https://github.com/nzbbody/GitTest
-	! [rejected]        master -> master (fetch first)
-	error: failed to push some refs to 'https://github.com/nzbbody/GitTest'
-	hint: Updates were rejected because the remote contains work that you do
-	hint: not have locally. This is usually caused by another repository pushing
-	hint: to the same ref. You may want to first integrate the remote changes
-	hint: (e.g., 'git pull ...') before pushing again.
-	hint: See the 'Note about fast-forwards' in 'git push --help' for details.
-3、提示，在push之前，先pull一下。我们使用fetch + merge
-4、执行
-	git fetch origin master
-	git merge origin/master
-5、merge有冲突，需要解决冲突，add commit push
-	root@ubuntu:/home/disk1/GitTest# git add readme.txt 
-	root@ubuntu:/home/disk1/GitTest# git commit -m"333444"
-	root@ubuntu:/home/disk1/GitTest# git push origin master:master
-###########################################################################################################################
-我们的开发分支管理
-1、远程有develop和niuzibin，在gitlab执行 merge niuzibin-->develop
-2、我的本地有 niuzibin，注意：本地的develop没有意义
-	本地的niuzibin分支，push到 origin/niuzibin
-3、我在本地修改 niuzibin分支，
-4、然后add commit，
-5、从origin/develop进行fetch，然后merge，有冲突，解决冲突，再次add commit push
-6、注意：4和5是不能颠倒顺序的，本地有修改，必须先提交，再merge
-
-###########################################################################################################################
-冲突的情况只有两种
-1、两个分支都提交了，然后merge时
-	办法是：解决冲突+add+commit
-2、push的时候，其实也是两个分支都提交了，需要merge
-	办法是：解决冲突+add+commit+push
-3、你可能会想，master改了，提交。test1改了，先把master分支merge到test1，然后add commit，存在冲突。
-	这种情况是不存在的。因为：test1修改了，没有提交的情况下，是不能merge的。
-	
-
-
-
-	
 
 
 
