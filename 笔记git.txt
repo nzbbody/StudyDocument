@@ -430,15 +430,31 @@ git介绍
 ###########################################################################################################################
 ope join
 create database yytest;
+------------------------------------------------------------------------------------------------------------
 use yytest;
+drop if exists table course;
 create table course(id enc int, name enc varchar(64), chinese enc int, `math` enc int, english enc int);
-
 insert into course(id,name,chinese,math,english) value(1,"Andy", 70,80,90);
-insert into course(id,name,chinese,math,english) value(1,"Bill", 74,71,70);
+insert into course(id,name,chinese,math,english) value(1,"Bill", 74,74,70);
 insert into course(id,name,chinese,math,english) value(1,"Caroline", 80,85,89);
 insert into course(id,name,chinese,math,english) value(1,"David", 80,75,74);
 insert into course(id,name,chinese,math,english) value(1,"Eric", 79,76,84);
 insert into course(id,name,chinese,math,english) value(1,"Frank", 85,72,73);
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+use yytest;
+drop if exists table course2;
+create table course2(id enc int, name enc varchar(64), chinese enc int, `math` enc int, english enc int);
+insert into course2(id,name,chinese,math,english) value(1,"Andy", 68,80,90);
+insert into course2(id,name,chinese,math,english) value(1,"Bill", 75,71,70);
+insert into course2(id,name,chinese,math,english) value(1,"Caroline", 81,85,89);
+insert into course2(id,name,chinese,math,english) value(1,"David", 81,75,74);
+insert into course2(id,name,chinese,math,english) value(1,"Eric", 80,76,84);
+insert into course2(id,name,chinese,math,english) value(1,"Frank", 86,72,73);
+------------------------------------------------------------------------------------------------------------
+
+
+select course.*, course2.* from course, course2 where course.name > course2.name and course.chinese > course2.chinese;
 
 
 select * from course;
@@ -446,15 +462,197 @@ select * from course where chinese > 75;
 
 UPDATE `yytest`.table_PTKLRHEBIO    SET BIYJSNVOVGoOrder = cast(cryptdb_decrypt_int_sem(`yytest`.`table_PTKLRHEBIO`.`BIYJSNVOVGoOrder` AS `BIYJSNVOVGoOrder`,'.SO\Z..>.s{^[....',`yytest`.`table_PTKLRHEBIO`.`cdb_saltOZVHWSXTKN` AS `cdb_saltOZVHWSXTKN`) as unsigned);
 
+select * from course where chinese = math;
+
 select * from course where chinese > math;
+思考，在哪里剥的洋葱？
 
 
-放到后台执行
-flkcdp > log.txt &
+OPE存在的问题
+1、目前的OPE只支持 select * from course where chinese > 75;
+	不支持 select * from course where chinese > math;
+	也就是说，支持和常数的比较，不支持和其他字段的比较。
+2、为什么？
+	要支持OPE操作，必须使用的密钥相同，如果不相同肯定不行。
+	目前不同字段OPE算法的密钥是不同的，产生密钥使用seedkey和扩展的字段名（这个是随机的），
+	如果要支持不同字段的OPE操作，字段名这个参数必须相同。
+3、但是这样就不安全了，支持OPE的不同字段，使用相同的参数，产生相同的密钥。
+4、cryptdb有可能是故意不支持的。
+5、支持的功能和安全性相互冲突，必须找到一个平衡点。
+
+
+
+考虑不同表？
+
+
+
+
+
+
+
+
+create table t1(id enc int);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ###########################################################################################################################
-git fetch
+git fetch pull push再去了解一下
 
+
+###########################################################################################################################
+diff命令
+1、diff比较分支，必须是已经提交的分支
+2、merge只能是merge，提交的分支
+
+
+
+
+###########################################################################################################################
+加密模式的区别
+1、SENSITIVE等级最高，BEST_EFFORT相对于SENSITIVE，只是多了一个洋葱，支持剥到明文，PLAIN就是明文。
+2、BEST_EFFORT和SENSITIVE，会根据实际需要配置洋葱层，在使用的过程中，为了支持，会剥掉洋葱。
+
+
+
+
+
+
+
+###########################################################################################################################
+DETJOINFactory 和 DETFactory 什么区别？
+std::unique_ptr<EncLayer>
+DETFactory::create(const Create_field &cf, const std::string &key)
+{
+    if (isMySQLTypeNumeric(cf)) {
+        if (cf.sql_type == MYSQL_TYPE_DECIMAL
+            || cf.sql_type == MYSQL_TYPE_NEWDECIMAL) {
+            FAIL_TextMessageError("decimal support is broken");
+        } else {
+            return std::unique_ptr<EncLayer>(new DET_int(cf, key));
+        }
+    } else {
+        return std::unique_ptr<EncLayer>(new DET_str(cf, key));
+    }
+}
+
+std::unique_ptr<EncLayer>
+DETFactory::deserialize(unsigned int id, const SerialLayer &sl)
+{
+    if ("DET_int" == sl.name) {
+        return DET_abstract_integer::deserialize<DET_int>(id,
+                                                       sl.layer_info);
+    } else if ("DET_dec" == sl.name) {
+        FAIL_TextMessageError("decimal support broken");
+    } else if ("DET_str" == sl.name) {
+        return std::unique_ptr<EncLayer>(new DET_str(id, sl.layer_info));
+    } else {
+        FAIL_TextMessageError("Unknown type for DET deserialization!");
+    }
+}
+
+
+###########################################################################################################################
+git理解
+1、本地的修改状态
+   工作区----【add】------->暂存区----【commit】-------->版本库
+   工作区<---【checkout】---暂存区<---【reset HEAD】-----版本库
+   
+   
+###########################################################################################################################
+是不是只能merge提交的分支？
+1、创建test1分支，修改文件，add、commit
+2、转到master分支，也修改文件，这个是时候，diff test1 master，看到的是提交的差异
+	注意：diff比较分支，是比较已经提交的分支。
+3、先不提交，merge试一下，报错
+	error: Your local changes to the following files would be overwritten by merge:
+			readme.txt
+	Please, commit your changes or stash them before you can merge.
+	Aborting
+4、提示：要求提交之后，再merge，如下：
+	root@ubuntu:/home/disk1/GitTest# git add readme.txt 
+	root@ubuntu:/home/disk1/GitTest# git commit -m"master"
+	[master 217992a] master
+	1 file changed, 1 insertion(+)
+	root@ubuntu:/home/disk1/GitTest# git merge test1      
+	Auto-merging readme.txt
+	CONFLICT (content): Merge conflict in readme.txt
+	Automatic merge failed; fix conflicts and then commit the result.
+5、这个时候，merge有冲突，需要解决冲突
+	解决冲突，然后再进行 add、commit
+6、结论：
+	当前分支修改后不提交，merge报错，要求先提交，再merge
+	提交后再merge，可能会冲突，需要解决冲突，然后add commit
+###########################################################################################################################
+看看fetch做了什么事情？
+1、git fetch origin master，通过fetch前后的文本对照和抓包，发现
+	fetch会获取远程分支的commit id，也就是本地的文件FETCH_HEAD，以及远程 origin/master的最新文件内容
+2、然后merge origin/master，会合并 origin/master 到 merge
+	也就是说，merge origin/master 并没有网络传输
+3、git pull origin master = git fetch origin master + merge origin/master
+	但是，一般不要使用pull，在背后进行merge总是不好的。
+###########################################################################################################################
+push可能会有冲突
+1、甲修改，commit push
+2、乙修改，commit push，报错
+	To https://github.com/nzbbody/GitTest
+	! [rejected]        master -> master (fetch first)
+	error: failed to push some refs to 'https://github.com/nzbbody/GitTest'
+	hint: Updates were rejected because the remote contains work that you do
+	hint: not have locally. This is usually caused by another repository pushing
+	hint: to the same ref. You may want to first integrate the remote changes
+	hint: (e.g., 'git pull ...') before pushing again.
+	hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+3、提示，在push之前，先pull一下。我们使用fetch + merge
+4、执行
+	git fetch origin master
+	git merge origin/master
+5、merge有冲突，需要解决冲突，add commit push
+	root@ubuntu:/home/disk1/GitTest# git add readme.txt 
+	root@ubuntu:/home/disk1/GitTest# git commit -m"333444"
+	root@ubuntu:/home/disk1/GitTest# git push origin master:master
+###########################################################################################################################
+我们的开发分支管理
+1、远程有develop和niuzibin，在gitlab执行 merge niuzibin-->develop
+2、我的本地有 niuzibin，注意：本地的develop没有意义
+	本地的niuzibin分支，push到 origin/niuzibin
+3、我在本地修改 niuzibin分支，
+4、然后add commit，
+5、从origin/develop进行fetch，然后merge，有冲突，解决冲突，再次add commit push
+6、注意：4和5是不能颠倒顺序的，本地有修改，必须先提交，再merge
+
+###########################################################################################################################
+冲突的情况只有两种
+1、两个分支都提交了，然后merge时
+	办法是：解决冲突+add+commit
+2、push的时候，其实也是两个分支都提交了，需要merge
+	办法是：解决冲突+add+commit+push
+3、你可能会想，master改了，提交。test1改了，先把master分支merge到test1，然后add commit，存在冲突。
+	这种情况是不存在的。因为：test1修改了，没有提交的情况下，是不能merge的。
+	
+
+
+
+	
+
+
+
+
+
+	
+	
+
+	
 
 
 
