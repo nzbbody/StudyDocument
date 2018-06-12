@@ -156,6 +156,7 @@ OPE存在的问题
 create table t1(id enc int);
 
 
+select cryptdb_decrypt_int_ope(GAAAROSNIEoOrder,'111',cdb_saltGYIIPPWTGJ) from table_KJSSJVNTFI;
 
 
 
@@ -214,6 +215,85 @@ DETFactory::deserialize(unsigned int id, const SerialLayer &sl)
         FAIL_TextMessageError("Unknown type for DET deserialization!");
     }
 }
+
+###########################################################################################################################
+MySQL的UDF
+1、MySQL的UDF(user-defined function)，用户自定义函数，
+
+
+
+
+
+
+
+
+
+###########################################################################################################################
+ope join
+create database yytest;
+------------------------------------------------------------------------------------------------------------
+use yytest;
+
+
+create table grade1(id enc int, name enc varchar(64), chn enc int, `math` enc int);
+insert into grade1(id,name,chn,math) value(1,"Andy", 70,75);
+insert into grade1(id,name,chn,math) value(2,"Bill", 75,74);
+insert into grade1(id,name,chn,math) value(3,"Caroline", 80,78);
+insert into grade1(id,name,chn,math) value(4,"David", 85,90);
+
+
+create table grade2(id enc int, name enc varchar(64), chn enc int, `math` enc int);
+insert into grade2(id,name,chn,math) value(1,"Andy", 72,73);
+insert into grade2(id,name,chn,math) value(2,"Bill", 78,72);
+insert into grade2(id,name,chn,math) value(3,"Caroline", 76,90);
+insert into grade2(id,name,chn,math) value(4,"David", 88,76);
+
+
+
+create table grade3(id enc int, name enc varchar(64), lastname enc varchar(64),chn enc int, `math` enc int);
+insert into grade3(id,name,lastname,chn,math) value(1,"Andy", "Green",70,75);
+insert into grade3(id,name,lastname,chn,math) value(2,"Bill", "James",75,74);
+insert into grade3(id,name,lastname,chn,math) value(3,"Caroline", "Onil",80,78);
+insert into grade3(id,name,lastname,chn,math) value(4,"David", "Bill",85,90);
+insert into grade3(id,name,lastname,chn,math) value(5,"Andy1", "Green",70,75);
+insert into grade3(id,name,lastname,chn,math) value(6,"Andy2", "Green",70,75);
+insert into grade3(id,name,lastname,chn,math) value(7,"Andy3", "Green",70,75);
+insert into grade3(id,name,lastname,chn,math) value(8,"Andy4", "Green",70,75);
+
+
+
+select * from grade3 where lastname > name;
+
+
+###########################################################################################################################
+剥洋葱的细节
+1、varbinary当成varchar使用
+2、RND剥洋葱涉及到salt，其它的剥洋葱不涉及
+3、由于加上了OPEJOIN，也就是 【【【OPEJOIN】OPE】RND】
+	这就要剥洋葱 OPE， RND剥掉之后，就需要剥掉OPE，秘钥不同
+4、为什么不需要 OPE_str::decryptUDF ？
+	static onionlayout STR_ONION_LAYOUT = 
+	{
+    {oDET, std::vector<SECLEVEL>({SECLEVEL::DETJOIN, SECLEVEL::DET,
+                                  SECLEVEL::RND})},
+    {oOPE, std::vector<SECLEVEL>({SECLEVEL::OPEJOIN, SECLEVEL::OPE, SECLEVEL::RND})},
+    {oSWP, std::vector<SECLEVEL>({SECLEVEL::SEARCH})}
+    // {oSWP, std::vector<SECLEVEL>({SECLEVEL::PLAINVAL, SECLEVEL::DET,
+                                  // SECLEVEL::RND})}
+	};
+	因为string的OPE是 {oOPE, std::vector<SECLEVEL>({SECLEVEL::OPEJOIN, SECLEVEL::OPE, SECLEVEL::RND})},
+	string--OPEJOIN-->int--OPE-->int， 这里的OPE是对int处理，所以剥掉的也是OPE_int
+5、对于string的OPE操作，只能比较前面4个字节。
+
+	
+	
+
+
+
+
+
+
+
 
 
 

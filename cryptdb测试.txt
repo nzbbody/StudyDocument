@@ -1,0 +1,44 @@
+###########################################################################################################################
+ope join
+create database yytest;
+
+use yytest;
+
+
+create table grade1(id enc int, name enc varchar(64), chn enc int, `math` enc int);
+insert into grade1(id,name,chn,math) value(1,"Andy", 70,75);
+insert into grade1(id,name,chn,math) value(2,"Bill", 75,74);
+insert into grade1(id,name,chn,math) value(3,"Caroline", 80,78);
+insert into grade1(id,name,chn,math) value(4,"David", 85,90);
+
+select * from grade1 where chn>75;
+
+select * from grade1 where chn>math;
+
+
+create table grade2(id enc int, name enc varchar(64), chn enc int, `math` enc int);
+insert into grade2(id,name,chn,math) value(1,"Andy", 72,73);
+insert into grade2(id,name,chn,math) value(2,"Bill", 78,72);
+insert into grade2(id,name,chn,math) value(3,"Caroline", 76,90);
+insert into grade2(id,name,chn,math) value(4,"David", 88,76);
+
+
+
+create table grade3(id enc int, name enc varchar(64), lastname enc varchar(64),chn enc int, `math` enc int);
+insert into grade3(id,name,lastname,chn,math) value(1,"Andy", "Green",70,75);
+insert into grade3(id,name,lastname,chn,math) value(2,"Bill", "James",75,74);
+insert into grade3(id,name,lastname,chn,math) value(3,"Caroline", "Onil",80,78);
+insert into grade3(id,name,lastname,chn,math) value(4,"David", "Bill",85,90);
+insert into grade3(id,name,lastname,chn,math) value(5,"Andy1", "Green",70,75);
+insert into grade3(id,name,lastname,chn,math) value(6,"Andy2", "Green",70,75);
+insert into grade3(id,name,lastname,chn,math) value(7,"Andy3", "Green",70,75);
+insert into grade3(id,name,lastname,chn,math) value(8,"Andy4", "Green",70,75);
+
+
+
+select * from grade3 where lastname > name;
+
+
+
+
+###########################################################################################################################
