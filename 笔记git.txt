@@ -1,5 +1,4 @@
-﻿
-###########################################################################################################################
+﻿###########################################################################################################################
 如何测试embed_tool
 1、先清空shadow目录和远端mysql中的数据库
 2、启动proxy，调用测试脚本，生成shadow目录
@@ -147,20 +146,9 @@ OPE存在的问题
 
 考虑不同表？
 
-
-
-
-
-
-
 create table t1(id enc int);
 
-
 select cryptdb_decrypt_int_ope(GAAAROSNIEoOrder,'111',cdb_saltGYIIPPWTGJ) from table_KJSSJVNTFI;
-
-
-
-
 
 
 ###########################################################################################################################
@@ -224,10 +212,6 @@ MySQL的UDF
 
 
 
-
-
-
-
 ###########################################################################################################################
 ope join
 create database yytest;
@@ -266,7 +250,7 @@ select * from grade3 where lastname > name;
 
 
 ###########################################################################################################################
-剥洋葱的细节
+OPE剥洋葱的细节
 1、varbinary当成varchar使用
 2、RND剥洋葱涉及到salt，其它的剥洋葱不涉及
 3、由于加上了OPEJOIN，也就是 【【【OPEJOIN】OPE】RND】
@@ -283,106 +267,79 @@ select * from grade3 where lastname > name;
 	};
 	因为string的OPE是 {oOPE, std::vector<SECLEVEL>({SECLEVEL::OPEJOIN, SECLEVEL::OPE, SECLEVEL::RND})},
 	string--OPEJOIN-->int--OPE-->int， 这里的OPE是对int处理，所以剥掉的也是OPE_int
-5、对于string的OPE操作，只能比较前面4个字节。
-
+5、对于string的OPE操作，只能比较前面4个字节，为什么？
+	因为OPE算法只对前面4个字节，加密，加密的结果是 varbinary(32), 32个字节。
+6、为什么只对前面4个字节加密？
+	因为string的长度是不确定的，没有办法支持加密后的结果进行OPE比较。
+7、为什么对前面4个字节加密，select出来的结果，是完整的？
+	因为select的是eq这个洋葱，作为判断使用的是ope洋葱。
+###########################################################################################################################	
+mysql的varbinary
+1、select出来varbinary看到的值不是字节的值，而是字节的ASCCI值。如下：
+	CREATE TABLE test1 (c1 VARBINARY(3));
+	INSERT INTO test1 set c1 = 0x61;
+	mysql> select c1 from test1;
+	+----+
+	| c1 |
+	+----+
+	| a  |
+	+----+
+	1 row in set
+2、再添加一个记录，如下：
+	mysql> INSERT INTO test1 set c1 = 0x31;
+	Query OK, 1 row affected
 	
-	
+	mysql> select c1 from test1;
+	+----+
+	| c1 |
+	+----+
+	| a  |
+	| 1  |
+	+----+
+	2 rows in set
+	注意：这里的1是ASCCI值，取值为49
+###########################################################################################################################
+快捷键
+1、word的F4，重复上一步操作
+2、excel中 Ctrl+E 操作
+
+###########################################################################################################################
+16.4 安装gitlab
+不行就手动安装
+手动安装已经OK
+
+###########################################################################################################################
+cmake自动生成目录lib
+1、对于下面的命令，cmake自动生成目录lib
+	SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+
+###########################################################################################################################
+linux程序崩溃，没有产生dmp文件
+1、一般是没有设置 ulimit -c unlimited
+2、如果设置了 ulimit -c unlimited，程序崩溃，可执行程序的当前目录没有产生dmp文件，检查这个目录是否有写文件的权限。
+3、如果目录有写文件的权限，则很大概率是生成在其它目录。
+    检查文件 /proc/sys/kernel/core_pattern
+    [root@HikvisionOS VTDUTest]# more /proc/sys/kernel/core_pattern                         
+    /opt/components_core/core-%e-%p-%t
+4、通过下面的信息，确认崩溃如下：
+    [root@HikvisionOS niuzb]# cat /var/log/messages |grep main
+    Jan 29 14:52:38 localhost kernel: traps: main[10196] trap divide error ip:4005c1 sp:7fff383a1a60 error:0 in main[400000+1000]
+    [root@HikvisionOS niuzb]# ll /opt/components_core/        
+    -rw------- 1 root root     413696 1月  29 14:52 core-main-10196-1517208758
+###########################################################################################################################
+chmod的区别
+1、比较 【sudo chmod 777 ./* -R】 和 【sudo chmod 777 ./ -R】，如下：
+	niuzibin@ubuntu:~/111/ccc$ sudo chmod 777 ./* -R
+	niuzibin@ubuntu:~/111/ccc$ ll
+	total 8
+	drwxrwxr-x 2 niuzibin niuzibin 4096 Jun 14 11:22 ./
+	drwxrwxr-x 4 niuzibin niuzibin 4096 Jun 14 11:22 ../
+	-rwxrwxrwx 1 niuzibin niuzibin    0 Jun 14 11:22 aaa*
+	niuzibin@ubuntu:~/111/ccc$ sudo chmod 777 ./ -R 
+	niuzibin@ubuntu:~/111/ccc$ ll
+	total 8
+	drwxrwxrwx 2 niuzibin niuzibin 4096 Jun 14 11:22 ./
+	drwxrwxr-x 4 niuzibin niuzibin 4096 Jun 14 11:22 ../
+	-rwxrwxrwx 1 niuzibin niuzibin    0 Jun 14 11:22 aaa*
+2、也就是说，sudo chmod 777 ./* -R 不能改变当前目录的权限
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-	
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-	

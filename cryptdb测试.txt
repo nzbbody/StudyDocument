@@ -1,9 +1,7 @@
 ###########################################################################################################################
 ope join
 create database yytest;
-
 use yytest;
-
 
 create table grade1(id enc int, name enc varchar(64), chn enc int, `math` enc int);
 insert into grade1(id,name,chn,math) value(1,"Andy", 70,75);
@@ -15,14 +13,11 @@ select * from grade1 where chn>75;
 
 select * from grade1 where chn>math;
 
-
 create table grade2(id enc int, name enc varchar(64), chn enc int, `math` enc int);
 insert into grade2(id,name,chn,math) value(1,"Andy", 72,73);
 insert into grade2(id,name,chn,math) value(2,"Bill", 78,72);
 insert into grade2(id,name,chn,math) value(3,"Caroline", 76,90);
 insert into grade2(id,name,chn,math) value(4,"David", 88,76);
-
-
 
 create table grade3(id enc int, name enc varchar(64), lastname enc varchar(64),chn enc int, `math` enc int);
 insert into grade3(id,name,lastname,chn,math) value(1,"Andy", "Green",70,75);
@@ -34,11 +29,47 @@ insert into grade3(id,name,lastname,chn,math) value(6,"Andy2", "Green",70,75);
 insert into grade3(id,name,lastname,chn,math) value(7,"Andy3", "Green",70,75);
 insert into grade3(id,name,lastname,chn,math) value(8,"Andy4", "Green",70,75);
 
-
-
 select * from grade3 where lastname > name;
 
+###########################################################################################################################
+常用的函数
+文本处理函数 upper
 
 
 
 ###########################################################################################################################
+目前还不支持的操作
+1、union
+	select * from grade1 where id>1 union select * from grade1 where name>"Andy";
+2、upper/lower等一系列的文本处理函数
+	select upper(name) from grade1;
+3、group by xxx having xxx
+	select count(*) from grade1 group by name having count(*) > 1;
+4、子查询
+	select * from grade1 where id < (select id from grade1 where name="David");
+5、执行计划，不支持，估计目前也没法支持
+	explain select * from grade1 where id<5;
+6、显示索引信息，都不支持
+	create index index_name on grade1(name);
+	show index from grade1;
+	select * from grade1 use index(index_name) where name < "Eric";
+7、指定索引查询，不支持
+	select * from grade1 use index(index_name) where name < "Eric";
+8、视图，不支持
+	create view bigIdView as select * from grade1 where id>3;
+	select * from bigIdView;
+9、函数
+	CREATE FUNCTION simpleFun() RETURNS VARCHAR(20) RETURN "Hello World";
+10、存储过程也不支持
+	DELIMITER ;;
+	CREATE PROCEDURE `procedure1`(iNum int)
+	BEGIN    
+	start transaction;
+	select * from grade1;    
+	commit;
+	END;
+	;;
+	DELIMITER ;
+11、用户变量也不支持
+	set @a=123;
+	select @a;
