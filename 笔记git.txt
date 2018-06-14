@@ -465,10 +465,95 @@ chmod的区别
 	链接静态库的方法，默认情况下（不加--whole-archive），是按需链接，也就是说，只链接需要的方法。
 	但是，链接的最小单元是目标文件，需要目标文件中的一个方法，会把整个目标文件链接进来。
 	
+###########################################################################################################################
+git远程分支的删除和同步
+1、其他人已经删除某个分支，但是本地还能看到，这个时候fetch报错，如下：
+	niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch -a                   
+	develop
+	* niuzibin
+	remotes/origin/HEAD -> origin/develop
+	remotes/origin/chenming
+	remotes/origin/develop
+	remotes/origin/heming
+	remotes/origin/master
+	remotes/origin/niuzibin
+	remotes/origin/patch-1
+	remotes/origin/patch-2
+	remotes/origin/patch-3
+	remotes/origin/patch-4
+	remotes/origin/revert-77cdc6fe
+	remotes/origin/revert-fa155359
+	remotes/origin/tuchengyu
+	remotes/origin/tuchengyu2
+	remotes/origin/yangyang
+	remotes/origin/yogurt
+	remotes/origin/ywn
 	
+	niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ sudo git fetch origin tuchengyu
+	fatal: Couldn't find remote ref tuchengyu
+	Unexpected end of command stream
+2、这个错误的原因是，fetch已经删除的分支
+3、如何同步呢？
+	执行 git fetch -p，如下：
+	From https://192.168.10.99/FLKDBEnc/FLKCDP
+	x [deleted]         (none)     -> origin/patch-2
+	x [deleted]         (none)     -> origin/patch-3
+	x [deleted]         (none)     -> origin/patch-4
+	x [deleted]         (none)     -> origin/tuchengyu
+	这个时候 git branch -a，就会少一些分支
+4、查看分支的关联，如下：
+	niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch -vv
+	develop  0c0c9a2 [origin/develop: behind 119] Merge branch 'chenming' into 'develop'
+	* niuzibin 4463d6a [origin/niuzibin] 删除无用的方法
+###########################################################################################################################
+git忽略文件权限的检查
+1、git config core.fileMode false
+2、可以查看配置文件
+	niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ cat .git/config 
+	[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+###########################################################################################################################
+本地创建分支，并和远程关联
+1、示例如下：
+niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch -a
+* develop
+  niuzibin
+  remotes/origin/HEAD -> origin/develop
+  remotes/origin/chenming
+  remotes/origin/develop
+  remotes/origin/heming
+  remotes/origin/master
+  remotes/origin/niuzibin
+  remotes/origin/patch-1
+  remotes/origin/revert-77cdc6fe
+  remotes/origin/revert-fa155359
+  remotes/origin/tuchengyu2
+  remotes/origin/yangyang
+  remotes/origin/yogurt
+  remotes/origin/ywn
+  remotes/origin/ywn1
 	
+niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch tuchengyu2
+niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch -vv
+* develop    dc5f079 [origin/develop] Merge branch 'yangyang' into 'develop'
+  niuzibin   4463d6a [origin/niuzibin] 删除无用的方法
+  tuchengyu2 dc5f079 Merge branch 'yangyang' into 'develop'
+  
+niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch --set-upstream-to origin/tuchengyu2 tuchengyu2
+Branch tuchengyu2 set up to track remote branch tuchengyu2 from origin.
+niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch -vv
+* develop    dc5f079 [origin/develop] Merge branch 'yangyang' into 'develop'
+  niuzibin   4463d6a [origin/niuzibin] 删除无用的方法
+  tuchengyu2 dc5f079 [origin/tuchengyu2: behind 14] Merge branch 'yangyang' into 'develop'
+
 	
-	
+###########################################################################################################################	
+itemTypes.reg(Item::Type::FUNC_ITEM, *this);
+在这里注册
+
 
 
 
