@@ -343,3 +343,145 @@ chmod的区别
 	-rwxrwxrwx 1 niuzibin niuzibin    0 Jun 14 11:22 aaa*
 2、也就是说，sudo chmod 777 ./* -R 不能改变当前目录的权限
 
+###########################################################################################################################
+链接静态库只链接调用的方法
+1、动态库或者可执行文件链接静态库，只会链接调用的方法，对于没有调用的方法，不会链接。
+	比如静态库暴露了10个方法，动态库或者可执行文件只调用了一个方法，只会链接这一个方法。
+2、示例代码如下：
+	root@ubuntu:/home/disk1/CPP_2/Link# more test.h 
+	int add(int a, int b);
+	int sub(int a, int b);
+	
+	root@ubuntu:/home/disk1/CPP_2/Link# more test1.cpp 
+	#include "test.h"
+	int add(int a, int b)
+	{
+			return a+b;
+	}
+	
+	root@ubuntu:/home/disk1/CPP_2/Link# more test2.cpp 
+	#include "test.h"
+	int sub(int a, int b)
+	{
+			return a-b;
+	}
+	
+	root@ubuntu:/home/disk1/CPP_2/Link# more main.cpp 
+	#include "test.h"
+	#include <stdio.h>
+	int main()
+	{
+			int c = add(1,2);
+			printf("c[%d]\n", c);
+			return 0;
+	}
+3、测试如下：
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -c test1.cpp  
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -c test2.cpp
+	
+	root@ubuntu:/home/disk1/CPP_2/Link# ar -rc libtest.a test1.o test2.o
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -o main main.cpp -L./ -ltest
+	root@ubuntu:/home/disk1/CPP_2/Link# ./main
+	c[3]
+	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main|grep "add"
+	0000000000400562 g     F .text  0000000000000014              _Z3addii
+	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main|grep "sub"
+	root@ubuntu:/home/disk1/CPP_2/Link# 
+	可以看到，main中并没有sub方法的代码实现。
+4、如果我想把静态库中的所有方法都链接进来（这种需求比较奇葩，也会存在），怎么办？
+	使用 --whole-archive编译选项，如下：
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -o main main.cpp -L./ -ltest                                           
+	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main|grep "sub"      
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -o main main.cpp -Wl,--whole-archive -L./ -ltest -Wl,--no-whole-archive
+	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main|grep "sub"                                                 
+	0000000000400576 g     F .text  0000000000000016              _Z3subii
+	可以看到，加上--whole-archive链接静态库时，会把没有调用的方法也合并过来。
+5、特别说明，上面是可执行文件链接静态库，动态库链接静态库，道理也是一样的。
+	动态库和可执行文件没有本质区别，可执行文件多了一个程序入口的main方法。
+	测试如下：
+	root@ubuntu:/home/disk1/CPP_2/Link# more aaa.cpp 
+	#include "test.h"
+	#include <stdio.h>
+	int aaa()
+	{
+			int c = add(1,2);
+			printf("c[%d]\n", c);
+			return 0;
+	}
+	
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -fPIC -shared -o libaaa.so aaa.cpp -L./ -ltest                                           
+	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t libaaa.so |grep "sub"                  
+	root@ubuntu:/home/disk1/CPP_2/Link# ll |grep libaaa.so                                
+	-rwxr-xr-x  1 root root 8082 Jun 14 15:47 libaaa.so*
+
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -fPIC -shared -o libaaa.so aaa.cpp -Wl,--whole-archive -L./ -ltest -Wl,--no-whole-archive
+	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t libaaa.so |grep "sub"
+	0000000000000780 g     F .text  0000000000000016              _Z3subii
+	root@ubuntu:/home/disk1/CPP_2/Link# ll |grep libaaa.so 
+	-rwxr-xr-x  1 root root 8149 Jun 14 15:47 libaaa.so*
+	可以看到，加上--whole-archive，生成的动态库，包含所有的代码实现，并且文件大小也更大。
+6、特别需要注意的是：
+	链接静态库的最小单元是 o文件，上面的两个方法，分别在两个cpp文件实现，生成不同的o文件
+	如果生成一个o文件呢？
+	示例代码
+	root@ubuntu:/home/disk1/CPP_2/Link# more test1.cpp 
+	#include "test.h"
+	int add(int a, int b)
+	{
+			return a+b;
+	}
+	root@ubuntu:/home/disk1/CPP_2/Link# more test2.cpp 
+	#include "test.h"
+	int sub(int a, int b)
+	{
+			return a-b;
+	}
+	root@ubuntu:/home/disk1/CPP_2/Link# more test.cpp 
+	#include "test.h"
+	int add(int a, int b)
+	{
+			return a+b;
+	}
+	int sub(int a, int b)
+	{
+			return a-b;
+	}
+	测试如下：
+	root@ubuntu:/home/disk1/CPP_2/Link# rm -fr *.o *.a
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -c test1.cpp
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -c test2.cpp
+	root@ubuntu:/home/disk1/CPP_2/Link# ar -rc libtest.a test1.o test2.o
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -o main main.cpp -L./ -ltest
+	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main |grep "sub"
+	root@ubuntu:/home/disk1/CPP_2/Link# 
+	root@ubuntu:/home/disk1/CPP_2/Link# rm -fr *.o *.a
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -c test.cpp
+	root@ubuntu:/home/disk1/CPP_2/Link# ar -rc libtest.a test.o
+	root@ubuntu:/home/disk1/CPP_2/Link# g++ -o main main.cpp -L./ -ltest
+	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main |grep "sub"
+	0000000000400576 g     F .text  0000000000000016              _Z3subii
+	也就是说，链接的最小单元是 o文件（目标文件）
+7、得出的结论是：
+	链接静态库的方法，默认情况下（不加--whole-archive），是按需链接，也就是说，只链接需要的方法。
+	但是，链接的最小单元是目标文件，需要目标文件中的一个方法，会把整个目标文件链接进来。
+	
+	
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
