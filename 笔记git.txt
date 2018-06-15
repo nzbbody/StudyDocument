@@ -555,9 +555,56 @@ itemTypes.reg(Item::Type::FUNC_ITEM, *this);
 在这里注册
 
 
+###########################################################################################################################	
+clion使用很卡
+1、设置一下
+	File --> Settings --> Editor --> General --> Code Completion 取消掉
+	File --> Settings --> Editor --> General --> Inspections C/C++取消掉
+2、取消Power Save Mode
+	找到右下角的人头，设置设置 Highlighting Level到最低
+###########################################################################################################################	
+思考洋葱的流程
+1、考虑 select * from grade1 where chn > math; 流程是什么？
+2、通过抓包发现，上面的sql语句重写为
+	select `yytest`.`table_RINDNVZYLV`.`RQDCHMVSRGoEq`,`yytest`.`table_RINDNVZYLV`.`cdb_saltSTCMIHZRPQ`,`yytest`.`table_RINDNVZYLV`.`MDSBNIFRBHoEq`,`yytest`.`table_RINDNVZYLV`.`BVGEQNNIUDoEq`,`yytest`.`table_RINDNVZYLV`.`JBECZAOQOGoEq`,`yytest`.`table_RINDNVZYLV`.`cdb_saltWMPCQHRDPL` from `yytest`.`table_RINDNVZYLV` where (`yytest`.`table_RINDNVZYLV`.`MRTWUKQORQoOrder` > `yytest`.`table_RINDNVZYLV`.`GCLJSYADDKoOrder`)
+3、我先思考，如果是自己做，思路是什么？
+	a、要把*转化为对应的字段，一个字段扩展为多个洋葱，我使用哪一个洋葱呢？
+		要选用加密过程没有信息丢失的洋葱，也就是说，可以解密的。OPE加密就会信息丢失，对于string只取前面4个字节。
+		因此，这里选用eq洋葱，把*转化为每个字段的eq洋葱，因为解密还涉及到盐值，所以要select盐值字段。
+	b、chn > math 涉及到两个洋葱比较，大于号决定了使用OPE洋葱，chn和math使用对应的OPE洋葱，而且要剥掉RND，OPE，到了OPE_JOIN这一层，密钥相同，就可以比较了。
+		能否支持 chn > math，需要考虑哪个洋葱，以及洋葱的最里层。如下：
+		const EncSet EQ_EncSet = 
+		{
+			{
+				{oPLAIN, LevelFieldPair(SECLEVEL::PLAINVAL, NULL)},
+				{oDET,   LevelFieldPair(SECLEVEL::DET, NULL)},
+				{oOPE,   LevelFieldPair(SECLEVEL::OPE, NULL)},
+			}
+		};
+		
+		const EncSet JOIN_EncSet = 
+		{
+			{
+				{oPLAIN, LevelFieldPair(SECLEVEL::PLAINVAL, NULL)},
+				{oDET,   LevelFieldPair(SECLEVEL::DETJOIN, NULL)},
+			}
+		};
+		上面是初始化的洋葱集合，以及每个洋葱的最里层。
+	c、select是eq洋葱，select回来的结果，也要使用eq洋葱解密。
+###########################################################################################################################	
+思考洋葱的流程
+1、思考
+	select name from grade1; 和 select upper(name) from grade1; 是如何选择洋葱的？
+	找到这个关键方法，return lookup(i).do_gather(i, a);
+	--> lass CItemStrconv : public CItemSubtypeFN<Item_str_conv, NAME>
+	--> RewritePlan * do_gather_type
+	--> typical_gather_string
+	
 
 
 
+
+	
 
 
 
