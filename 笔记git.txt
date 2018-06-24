@@ -208,6 +208,10 @@ DETFactory::deserialize(unsigned int id, const SerialLayer &sl)
 MySQL的UDF
 1、MySQL的UDF(user-defined function)，用户自定义函数，
 
+好好搞一下 base64_encode 弄一下
+
+
+
 
 
 
@@ -596,10 +600,209 @@ clion使用很卡
 1、思考
 	select name from grade1; 和 select upper(name) from grade1; 是如何选择洋葱的？
 	找到这个关键方法，return lookup(i).do_gather(i, a);
-	--> lass CItemStrconv : public CItemSubtypeFN<Item_str_conv, NAME>
+	--> class CItemStrconv : public CItemSubtypeFN<Item_str_conv, NAME>
 	--> RewritePlan * do_gather_type
 	--> typical_gather_string
+###########################################################################################################################	
+move与forward学习
+1、一定要学习好
+
+
+
+
+
+###########################################################################################################################	
+编码规范
+1、不要使用using namespace std; 因为这会名称空间污染。
+2、接口要暴露，就写在头文件，接口不暴露，就写在cpp文件，并且定义为 static内部链接。
+
+
+
+
+###########################################################################################################################
+【ModernCPP_01】理解模板型别推导
+1、示例代码如下：
+	template<typename T>
+	void f(ParamType param);
 	
+	f(expr);
+2、先增加打印类型的代码，如下：
+	#include <string>
+	#include <type_traits>
+	#include <typeinfo>
+	#ifndef _MSC_VER
+	# include <cxxabi.h>
+	#endif
+	#include <memory>
+	#include <string>
+	#include <cstdlib>	
+	
+	template <class T>
+	std::string type_name()
+	{
+		typedef typename std::remove_reference<T>::type TR;
+		std::unique_ptr<char, void(*)(void*)> own
+			(
+	#ifndef _MSC_VER
+			abi::__cxa_demangle(typeid(TR).name(), nullptr,
+			nullptr, nullptr),
+	#else
+			nullptr,
+	#endif
+			std::free
+			);
+	
+		std::string r;
+		if (std::is_const<TR>::value)
+		{
+			r +="const ";
+		}		
+		if (std::is_volatile<TR>::value)
+		{
+			r +="volatile ";
+		}
+		r += (own!= nullptr? own.get() : typeid(TR).name());
+		if (std::is_lvalue_reference<T>::value)
+		{
+			r +="&";
+		}
+		if (std::is_rvalue_reference<T>::value)
+		{
+			r +="&&";
+		}
+	
+		return r;
+	}
+3、考虑第一种情况，ParamType是个指针或者引用，但不是万能引用
+	a、若expr具有引用型别，现将引用部分去掉
+	b、然后，对expr和ParamType的型别执行模式匹配，来决定T的型别
+	
+
+
+
+###########################################################################################################################
+CItemMath_One和CItemStrconv
+
+
+
+
+
+
+
+
+###########################################################################################################################
+template<class CB>
+ope_domain_range
+OPE::search(CB go_low)
+{
+    blockrng<AES> r(aesk);
+/*
+    return lazy_sample(to_ZZ(0), to_ZZ(1) << pbits,
+                       to_ZZ(0), to_ZZ(1) << cbits,
+                       go_low, &r);
+                      */
+
+   return lazy_sample(-(to_ZZ(1) << (pbits - 1)), to_ZZ(1) << pbits,
+                       to_ZZ(0), to_ZZ(1) << cbits,
+                       go_low, &r);
+
+}
+导致ope_join测试用例失败
+###########################################################################################################################
+目前确认不支持的
+1、方法中是个表达式
+	select floor(id+1) from grade1;
+2、方法的嵌套
+	select floor(sin(id)) from grade1;
+3、两个参数、三个参数、参数不确定
+	
+4、
+
+
+###########################################################################################################################
+ope_join测试用例失败的原因分析
+1、cmake 静态库的代码修改，动态库 make 没有重新链接，必须先要make clean一下
+2、动态库edb.so修改了，安装到mysql服务，必须重启一下mysql服务
+3、也就是会出现：
+	没有clean，没有重启mysql，测试OK
+	clean，并且重启mysql，测试OK
+4、ope_join测试用例失败的原因找到了，：杨万年修改了ope的算法，静态库libedbcrypto_static.a发生变化，生成的edb.so的时候，先clean，再make
+	edb.so变化，并且注册到mysql服务，但是没有重启mysql服务，导致剥洋葱的update操作失败。	
+	另外还存在一个camek的问题，大家注意一下，动态库 a.so 链接静态库 b.a， 静态库b.a代码修改，重新编译， 生成动态库a.so时候，必须clean一下，否则a.so不会更新。	
+	有些人的本地，没有重启mysql服务，ope_join测试也是成功的，原因是 生成edb.so的时候，没有clean，实际上一直没有更新edb.so
+
+
+
+###########################################################################################################################
+su与sudo的再次理解
+
+
+
+###########################################################################################################################
+string中的特殊字符
+1、考虑如下的代码：
+	#include <stdio.h>
+	#include <string>
+	using std::string;
+	
+	int main(int argc, char* argv[])
+	{
+		string aa = "abcde";
+		aa[2] = 0;
+		string bb(aa.c_str());
+		string cc(aa.c_str(), aa.size());
+	
+		printf("aa size[%d] value[%s]\n", aa.size(), aa.c_str());
+		printf("bb size[%d] value[%s]\n", bb.size(), bb.c_str());
+		printf("cc size[%d] value[%s]\n", cc.size(), cc.c_str());
+	
+		return 0;
+	}
+2、输出结果为：
+	aa size[5] value[ab]
+	bb size[2] value[ab]
+	cc size[5] value[ab]
+3、得出结论：
+	a、string中可以包含取值为0的字符，甚至可以是任意char类型的字符，其中很多是不可见的字符。
+	b、这里和预期不一致，关键的问题是，对于c_str()方法，仅仅返回一个char指针，没有其他的信息
+	c、在处理c_str()的时候，由于不知道处理的长度，只能是遇到\0结束，比如 string bb(aa.c_str()); 和 printf
+		而string cc(aa.c_str(), aa.size()); 能够正确处理，原因是后面给了长度信息。
+	d、也就是说，使用char*构造string的时候，要特别注意，如果预期遇到\0结束，没有问题。如果预期包含\0，必须带上长度信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

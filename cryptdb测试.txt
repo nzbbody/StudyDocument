@@ -3,7 +3,7 @@ ope join
 create database yytest;
 use yytest;
 
-create table grade1(id enc int, name enc varchar(64), chn enc int, `math` enc int);
+create table grade1(id enc int, name enc varchar(64), chn enc int, `math` enc int) default character set utf8;
 insert into grade1(id,name,chn,math) value(1,"Andy", 70,75);
 insert into grade1(id,name,chn,math) value(2,"Bill", 75,74);
 insert into grade1(id,name,chn,math) value(3,"Caroline", 80,78);
@@ -35,6 +35,76 @@ select * from grade3 where lastname > name;
 常用的函数
 文本处理函数 upper
 
+select upper(name) from grade1;
+
+###########################################################################################################################
+
+
+create table user(name enc varchar(64), cStr enc varchar(64), cInt enc int);
+insert into user value("Andy","1",1);
+insert into user value("Bill","2",2);
+insert into user value("Caroline","3",3);
+
+
+
+###########################################################################################################################
+create table test1(name varchar(64), com enc varbinary(64));
+insert into test1(name) value("Andy");
+update test1 set com=compress("Andy");
+
+
+
+
+
+
+
+create table test1(name varchar(64), pname varchar(64),com varchar(64), uncom varchar(64));
+insert into test1(pname) value("Andy");
+
+
+
+
+
+
+###########################################################################################################################
+    /*** for test ***/
+    if (funcInfo.func_name == "compress")
+    {
+        string orgValue = "abcdefg";
+        
+        Item_string orgItem(make_thd_string(""), oldValue.length(), &my_charset_utf8_unicode_ci);
+
+        Item_func_compress compress(&strItem);
+        compress.fix_length_and_dec();
+        if(compress.val_str(NULL) == NULL)
+        {
+            return new Item_null_result();
+        }
+        string newValue(compress.val_str(NULL)->c_ptr(),compress.val_str(NULL)->length());
+        Item_string itemCom(make_thd_string(newValue), newValue.length(), &my_charset_utf8_unicode_ci);
+
+        if(funcInfo.func_name == "uncompress_compress")
+        {
+            Item_func_uncompress uncompress(&itemCom);
+            uncompress.fix_length_and_dec();
+            if(uncompress.val_str(NULL) == NULL)
+            {
+                return new Item_null_result();
+            }
+            string orgValue(uncompress.val_str(NULL)->c_ptr(),uncompress.val_str(NULL)->length());
+            return new Item_string(make_thd_string(orgValue), orgValue.length(), &my_charset_utf8_unicode_ci);
+        }
+        else
+        {
+            Item_func_uncompressed_length uncompressed_length(&itemCom);
+            uncompressed_length.fix_length_and_dec();
+            return new Item_int(uncompressed_length.val_int());
+        }
+    }
+    /*** for test ***/
+
+
+ 
 
 
 ###########################################################################################################################
