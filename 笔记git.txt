@@ -81,11 +81,6 @@ origin
 	root@ubuntu:/home/disk1/GitTest# git remote -v
 	origin  https://github.com/nzbbody/GitTest (fetch)
 	origin  https://github.com/nzbbody/GitTest (push)
-###########################################################################################################################
-git介绍
-1、svn是集中式版本控制，git是分布式版本控制
-2、svn记录文件的差异，git是包括文件的快照，如果没有变化，从上一次引用下来。
-
 
 
 
@@ -317,19 +312,7 @@ cmake自动生成目录lib
 1、对于下面的命令，cmake自动生成目录lib
 	SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-###########################################################################################################################
-linux程序崩溃，没有产生dmp文件
-1、一般是没有设置 ulimit -c unlimited
-2、如果设置了 ulimit -c unlimited，程序崩溃，可执行程序的当前目录没有产生dmp文件，检查这个目录是否有写文件的权限。
-3、如果目录有写文件的权限，则很大概率是生成在其它目录。
-    检查文件 /proc/sys/kernel/core_pattern
-    [root@HikvisionOS VTDUTest]# more /proc/sys/kernel/core_pattern                         
-    /opt/components_core/core-%e-%p-%t
-4、通过下面的信息，确认崩溃如下：
-    [root@HikvisionOS niuzb]# cat /var/log/messages |grep main
-    Jan 29 14:52:38 localhost kernel: traps: main[10196] trap divide error ip:4005c1 sp:7fff383a1a60 error:0 in main[400000+1000]
-    [root@HikvisionOS niuzb]# ll /opt/components_core/        
-    -rw------- 1 root root     413696 1月  29 14:52 core-main-10196-1517208758
+
 ###########################################################################################################################
 chmod的区别
 1、比较 【sudo chmod 777 ./* -R】 和 【sudo chmod 777 ./ -R】，如下：
@@ -347,213 +330,6 @@ chmod的区别
 	-rwxrwxrwx 1 niuzibin niuzibin    0 Jun 14 11:22 aaa*
 2、也就是说，sudo chmod 777 ./* -R 不能改变当前目录的权限
 
-###########################################################################################################################
-链接静态库只链接调用的方法
-1、动态库或者可执行文件链接静态库，只会链接调用的方法，对于没有调用的方法，不会链接。
-	比如静态库暴露了10个方法，动态库或者可执行文件只调用了一个方法，只会链接这一个方法。
-2、示例代码如下：
-	root@ubuntu:/home/disk1/CPP_2/Link# more test.h 
-	int add(int a, int b);
-	int sub(int a, int b);
-	
-	root@ubuntu:/home/disk1/CPP_2/Link# more test1.cpp 
-	#include "test.h"
-	int add(int a, int b)
-	{
-			return a+b;
-	}
-	
-	root@ubuntu:/home/disk1/CPP_2/Link# more test2.cpp 
-	#include "test.h"
-	int sub(int a, int b)
-	{
-			return a-b;
-	}
-	
-	root@ubuntu:/home/disk1/CPP_2/Link# more main.cpp 
-	#include "test.h"
-	#include <stdio.h>
-	int main()
-	{
-			int c = add(1,2);
-			printf("c[%d]\n", c);
-			return 0;
-	}
-3、测试如下：
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -c test1.cpp  
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -c test2.cpp
-	
-	root@ubuntu:/home/disk1/CPP_2/Link# ar -rc libtest.a test1.o test2.o
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -o main main.cpp -L./ -ltest
-	root@ubuntu:/home/disk1/CPP_2/Link# ./main
-	c[3]
-	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main|grep "add"
-	0000000000400562 g     F .text  0000000000000014              _Z3addii
-	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main|grep "sub"
-	root@ubuntu:/home/disk1/CPP_2/Link# 
-	可以看到，main中并没有sub方法的代码实现。
-4、如果我想把静态库中的所有方法都链接进来（这种需求比较奇葩，也会存在），怎么办？
-	使用 --whole-archive编译选项，如下：
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -o main main.cpp -L./ -ltest                                           
-	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main|grep "sub"      
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -o main main.cpp -Wl,--whole-archive -L./ -ltest -Wl,--no-whole-archive
-	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main|grep "sub"                                                 
-	0000000000400576 g     F .text  0000000000000016              _Z3subii
-	可以看到，加上--whole-archive链接静态库时，会把没有调用的方法也合并过来。
-5、特别说明，上面是可执行文件链接静态库，动态库链接静态库，道理也是一样的。
-	动态库和可执行文件没有本质区别，可执行文件多了一个程序入口的main方法。
-	测试如下：
-	root@ubuntu:/home/disk1/CPP_2/Link# more aaa.cpp 
-	#include "test.h"
-	#include <stdio.h>
-	int aaa()
-	{
-			int c = add(1,2);
-			printf("c[%d]\n", c);
-			return 0;
-	}
-	
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -fPIC -shared -o libaaa.so aaa.cpp -L./ -ltest                                           
-	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t libaaa.so |grep "sub"                  
-	root@ubuntu:/home/disk1/CPP_2/Link# ll |grep libaaa.so                                
-	-rwxr-xr-x  1 root root 8082 Jun 14 15:47 libaaa.so*
-
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -fPIC -shared -o libaaa.so aaa.cpp -Wl,--whole-archive -L./ -ltest -Wl,--no-whole-archive
-	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t libaaa.so |grep "sub"
-	0000000000000780 g     F .text  0000000000000016              _Z3subii
-	root@ubuntu:/home/disk1/CPP_2/Link# ll |grep libaaa.so 
-	-rwxr-xr-x  1 root root 8149 Jun 14 15:47 libaaa.so*
-	可以看到，加上--whole-archive，生成的动态库，包含所有的代码实现，并且文件大小也更大。
-6、特别需要注意的是：
-	链接静态库的最小单元是 o文件，上面的两个方法，分别在两个cpp文件实现，生成不同的o文件
-	如果生成一个o文件呢？
-	示例代码
-	root@ubuntu:/home/disk1/CPP_2/Link# more test1.cpp 
-	#include "test.h"
-	int add(int a, int b)
-	{
-			return a+b;
-	}
-	root@ubuntu:/home/disk1/CPP_2/Link# more test2.cpp 
-	#include "test.h"
-	int sub(int a, int b)
-	{
-			return a-b;
-	}
-	root@ubuntu:/home/disk1/CPP_2/Link# more test.cpp 
-	#include "test.h"
-	int add(int a, int b)
-	{
-			return a+b;
-	}
-	int sub(int a, int b)
-	{
-			return a-b;
-	}
-	测试如下：
-	root@ubuntu:/home/disk1/CPP_2/Link# rm -fr *.o *.a
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -c test1.cpp
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -c test2.cpp
-	root@ubuntu:/home/disk1/CPP_2/Link# ar -rc libtest.a test1.o test2.o
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -o main main.cpp -L./ -ltest
-	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main |grep "sub"
-	root@ubuntu:/home/disk1/CPP_2/Link# 
-	root@ubuntu:/home/disk1/CPP_2/Link# rm -fr *.o *.a
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -c test.cpp
-	root@ubuntu:/home/disk1/CPP_2/Link# ar -rc libtest.a test.o
-	root@ubuntu:/home/disk1/CPP_2/Link# g++ -o main main.cpp -L./ -ltest
-	root@ubuntu:/home/disk1/CPP_2/Link# objdump -t main |grep "sub"
-	0000000000400576 g     F .text  0000000000000016              _Z3subii
-	也就是说，链接的最小单元是 o文件（目标文件）
-7、得出的结论是：
-	链接静态库的方法，默认情况下（不加--whole-archive），是按需链接，也就是说，只链接需要的方法。
-	但是，链接的最小单元是目标文件，需要目标文件中的一个方法，会把整个目标文件链接进来。
-	
-###########################################################################################################################
-git远程分支的删除和同步
-1、其他人已经删除某个分支，但是本地还能看到，这个时候fetch报错，如下：
-	niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch -a                   
-	develop
-	* niuzibin
-	remotes/origin/HEAD -> origin/develop
-	remotes/origin/chenming
-	remotes/origin/develop
-	remotes/origin/heming
-	remotes/origin/master
-	remotes/origin/niuzibin
-	remotes/origin/patch-1
-	remotes/origin/patch-2
-	remotes/origin/patch-3
-	remotes/origin/patch-4
-	remotes/origin/revert-77cdc6fe
-	remotes/origin/revert-fa155359
-	remotes/origin/tuchengyu
-	remotes/origin/tuchengyu2
-	remotes/origin/yangyang
-	remotes/origin/yogurt
-	remotes/origin/ywn
-	
-	niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ sudo git fetch origin tuchengyu
-	fatal: Couldn't find remote ref tuchengyu
-	Unexpected end of command stream
-2、这个错误的原因是，fetch已经删除的分支
-3、如何同步呢？
-	执行 git fetch -p，如下：
-	From https://192.168.10.99/FLKDBEnc/FLKCDP
-	x [deleted]         (none)     -> origin/patch-2
-	x [deleted]         (none)     -> origin/patch-3
-	x [deleted]         (none)     -> origin/patch-4
-	x [deleted]         (none)     -> origin/tuchengyu
-	这个时候 git branch -a，就会少一些分支
-4、查看分支的关联，如下：
-	niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch -vv
-	develop  0c0c9a2 [origin/develop: behind 119] Merge branch 'chenming' into 'develop'
-	* niuzibin 4463d6a [origin/niuzibin] 删除无用的方法
-###########################################################################################################################
-git忽略文件权限的检查
-1、git config core.fileMode false
-2、可以查看配置文件
-	niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ cat .git/config 
-	[core]
-	repositoryformatversion = 0
-	filemode = true
-	bare = false
-	logallrefupdates = true
-###########################################################################################################################
-本地创建分支，并和远程关联
-1、示例如下：
-niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch -a
-* develop
-  niuzibin
-  remotes/origin/HEAD -> origin/develop
-  remotes/origin/chenming
-  remotes/origin/develop
-  remotes/origin/heming
-  remotes/origin/master
-  remotes/origin/niuzibin
-  remotes/origin/patch-1
-  remotes/origin/revert-77cdc6fe
-  remotes/origin/revert-fa155359
-  remotes/origin/tuchengyu2
-  remotes/origin/yangyang
-  remotes/origin/yogurt
-  remotes/origin/ywn
-  remotes/origin/ywn1
-	
-niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch tuchengyu2
-niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch -vv
-* develop    dc5f079 [origin/develop] Merge branch 'yangyang' into 'develop'
-  niuzibin   4463d6a [origin/niuzibin] 删除无用的方法
-  tuchengyu2 dc5f079 Merge branch 'yangyang' into 'develop'
-  
-niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch --set-upstream-to origin/tuchengyu2 tuchengyu2
-Branch tuchengyu2 set up to track remote branch tuchengyu2 from origin.
-niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP$ git branch -vv
-* develop    dc5f079 [origin/develop] Merge branch 'yangyang' into 'develop'
-  niuzibin   4463d6a [origin/niuzibin] 删除无用的方法
-  tuchengyu2 dc5f079 [origin/tuchengyu2: behind 14] Merge branch 'yangyang' into 'develop'
-
-	
 ###########################################################################################################################	
 itemTypes.reg(Item::Type::FUNC_ITEM, *this);
 在这里注册
@@ -607,14 +383,6 @@ clion使用很卡
 move与forward学习
 1、一定要学习好
 
-
-
-
-
-###########################################################################################################################	
-编码规范
-1、不要使用using namespace std; 因为这会名称空间污染。
-2、接口要暴露，就写在头文件，接口不暴露，就写在cpp文件，并且定义为 static内部链接。
 
 
 
@@ -735,39 +503,6 @@ ope_join测试用例失败的原因分析
 
 ###########################################################################################################################
 su与sudo的再次理解
-
-
-
-###########################################################################################################################
-string中的特殊字符
-1、考虑如下的代码：
-	#include <stdio.h>
-	#include <string>
-	using std::string;
-	
-	int main(int argc, char* argv[])
-	{
-		string aa = "abcde";
-		aa[2] = 0;
-		string bb(aa.c_str());
-		string cc(aa.c_str(), aa.size());
-	
-		printf("aa size[%d] value[%s]\n", aa.size(), aa.c_str());
-		printf("bb size[%d] value[%s]\n", bb.size(), bb.c_str());
-		printf("cc size[%d] value[%s]\n", cc.size(), cc.c_str());
-	
-		return 0;
-	}
-2、输出结果为：
-	aa size[5] value[ab]
-	bb size[2] value[ab]
-	cc size[5] value[ab]
-3、得出结论：
-	a、string中可以包含取值为0的字符，甚至可以是任意char类型的字符，其中很多是不可见的字符。
-	b、这里和预期不一致，关键的问题是，对于c_str()方法，仅仅返回一个char指针，没有其他的信息
-	c、在处理c_str()的时候，由于不知道处理的长度，只能是遇到\0结束，比如 string bb(aa.c_str()); 和 printf
-		而string cc(aa.c_str(), aa.size()); 能够正确处理，原因是后面给了长度信息。
-	d、也就是说，使用char*构造string的时候，要特别注意，如果预期遇到\0结束，没有问题。如果预期包含\0，必须带上长度信息。
 
 
 
