@@ -510,6 +510,201 @@ su与sudo的再次理解
 
 
 
+###########################################################################################################################
+tpcc-mysql的性能测试
+1、下载源码，构建
+	git clone https://github.com/Percona-Lab/tpcc-mysql.git
+	进入tpcc-mysql/src目录，执行make构建，生成tpcc_load和tpcc_start可执行文件，说明构建OK
+2、准备工作
+	a、创建数据库  
+	mysqladmin create tpcc1000 -h127.0.0.1 -P3306 -uroot -pletmein 
+	b、创建相应数据表  
+	mysql tpcc1000 -h127.0.0.1 -P3306 -uroot -pletmein < create_table.sql  
+	c、创建索引  
+	mysql tpcc1000 -h127.0.0.1 -P3306 -uroot -pletmein < add_fkey_idx.sql  	
+	d、装载数据  
+	./tpcc_load -h127.0.0.1 -P3306 -dtpcc1000 -uroot -pletmein -w 1 
+3、执行测试
+	./tpcc_start -h127.0.0.1 -P3306 -dtpcc1000 -uroot -p123321 -w1 -c32 -r10 -l60
+	选项解释如下：
+	-w 指定仓库数量
+	-c 指定并发连接数
+	-r 指定开始测试前进行warmup的时间，进行预热后，测试效果更好
+	-l 指定测试持续时间
+	-i  指定生成报告间隔时长
+	-f 指定生成的报告文件名
+	也可以生成文件如下： 
+	./tpcc_start -h127.0.0.1 -P3306 -dtpcc1000 -uroot -w1 -c32 -r10 -l60 -f tpcc_mysql_20180617.log > tpcc_caseX_20180617.log 2>&1
+4、表的业务逻辑
+	New-Order：新订单，主要对应 new_orders 表
+	Payment：支付，主要对应 orders、history 表
+	Order-Status：订单状态，主要对应 orders、order_line 表
+	Delivery：发货，主要对应 order_line 表
+	Stock-Level：库存，主要对应 stock 表
+	
+	其他相关表：
+	客户：主要对应 customer 表
+	地区：主要对应 district 表
+	商品：主要对应 item 表
+	仓库：主要对应 warehouse 表
+5、报告分析
+***************************************
+*** ###easy### TPC-C Load Generator ***
+***************************************
+option h with value '1.2.3.4'   -- 主机
+option P with value '3306'             -- 端口
+option d with value 'tpcc10'         -- 数据库
+option u with value 'tpcc'             -- 账号
+option p with value 'tpcc'             -- 密码
+option w with value '10'                 -- 仓库数
+option c with value '64'                 -- 并发线程数
+option r with value '30'                 -- 数据预热时长
+option l with value '120'               -- 压测时长
+option f with value 'tpcclog_20140921_64_THREADS.res'  -- 输出报告日志文件
+
+     [server]: 1.2.3.4
+     [port]: 3306
+     [DBname]: tpcc10
+       [user]: tpcc
+       [pass]: tpcc
+  [warehouse]: 10
+ [connection]: 64
+     [rampup]: 30 (sec.)
+    [measure]: 120 (sec.)
+
+RAMP-UP TIME.(30 sec.)
+
+-- 预热结束，开始进行压测
+MEASURING START.
+
+-- 每10秒钟输出一次压测数据
+  10, 8376(0):2.744|3.211, 8374(0):0.523|1.626, 838(0):0.250|0.305, 837(0):3.241|3.518, 839(0):9.086|10.676
+  20, 8294(0):2.175|2.327, 8292(0):0.420|0.495, 829(0):0.206|0.243, 827(0):2.489|2.593, 827(0):7.214|7.646
+…
+ 110, 8800(0):2.149|2.458, 8792(0):0.424|0.710, 879(0):0.207|0.244, 878(0):2.461|2.556, 878(0):7.042|7.341
+ 120, 8819(0):2.147|2.327, 8820(0):0.424|0.568, 882(0):0.208|0.237, 881(0):2.483|2.561, 883(0):7.025|7.405
+-- 以逗号分隔，共6列
+-- 第一列，第N次10秒
+-- 第二列，总成功执行压测的次数(总推迟执行压测的次数):90%事务的响应时间|本轮测试最大响应时间
+-- 第三列，新订单业务成功执行次数(推迟执行次数):90%事务的响应时间|本轮测试最大响应时间
+-- 第四列，支付业务的结果，后面几个的意义同上
+-- 第五列，发货业务的结果，后面几个的意义同上
+-- 第六列，库存业务的结果，后面几个的意义同上
+
+-- 压测结束
+STOPPING THREADS................................................................
+
+   -- 第一次粗略结果统计
+  [0] sc:100589  lt:0  rt:0  fl:0    -- New-Order，新订单业务成功(success,简写sc)次数，延迟(late,简写lt)次数，重试(retry,简写rt)次数，失败(failure,简写fl)次数
+  [1] sc:100552  lt:0  rt:0  fl:0    -- Payment，支付业务统计，其他同上
+  [2] sc:10059  lt:0  rt:0  fl:0    -- Order-Status，订单状态业务统计，其他同上
+  [3] sc:10057  lt:0  rt:0  fl:0    -- Delivery，发货业务统计，其他同上
+  [4] sc:10058  lt:0  rt:0  fl:0    -- Stock-Level，库存业务统计，其他同上
+ in 120 sec.
+
+    -- 第二次粗略统计结果，其他同上
+  [0] sc:100590  lt:0  rt:0  fl:0 
+  [1] sc:100582  lt:0  rt:0  fl:0 
+  [2] sc:10059  lt:0  rt:0  fl:0 
+  [3] sc:10057  lt:0  rt:0  fl:0 
+  [4] sc:10059  lt:0  rt:0  fl:0 
+
+ (all must be [OK])       -- 下面所有业务逻辑结果都必须为 OK 才行
+ [transaction percentage]
+        Payment: 43.47% (>=43.0%) [OK]      -- 支付成功次数(上述统计结果中 sc + lt)必须大于43.0%，否则结果为NG，而不是OK
+   Order-Status: 4.35% (>= 4.0%) [OK]       -- 订单状态，其他同上
+       Delivery: 4.35% (>= 4.0%) [OK]       -- 发货，其他同上
+    Stock-Level: 4.35% (>= 4.0%) [OK]       -- 库存，其他同上
+ [response time (at least 90% passed)]      -- 响应耗时指标必须超过90%通过才行
+      New-Order: 100.00%  [OK]              -- 下面几个响应耗时指标全部 100% 通过
+        Payment: 100.00%  [OK]
+   Order-Status: 100.00%  [OK]
+       Delivery: 100.00%  [OK]
+    Stock-Level: 100.00%  [OK]
+
+
+                 50294.500 TpmC                      -- TpmC结果值
+注：tpm是transactions per minute的简称；C指TPC中的C基准程序。
+
+
+###########################################################################################################################
+tpcc-mysql测试cryptDB
+1、创建数据库
+	mysqladmin create yytest -h127.0.0.1 -P3307 -uroot -pletmein 
+2、添加表
+	mysql yytest -h127.0.0.1 -P3307 -uroot -pletmein < create_table.sql
+3、加载数据
+	./tpcc_load -h127.0.0.1 -P3307 -dyytest -uroot -pletmein -w1
+
+
+###########################################################################################################################
+push、fetch、pull
+1、push做的事情
+	a、修改本地的 origin/master
+	b、提交到远程
+2、示例如下：
+	niuzibin@ubuntu:/home/disk1/GitTest$ git log -4 --oneline --decorate 
+	8cbb6c4 (HEAD, master) a
+	5109ccf (origin/master, origin/HEAD) b
+	b87db1d a
+	1e2d2d6 a
+	niuzibin@ubuntu:/home/disk1/GitTest$ git diff origin/master master  
+	diff --git a/readme.txt b/readme.txt
+	index ccc3e7b..db754db 100644
+	--- a/readme.txt
+	+++ b/readme.txt
+	@@ -1 +1 @@
+	-aaaaa
+	+bbbbb
+	niuzibin@ubuntu:/home/disk1/GitTest$ sudo git push origin master:master
+	Counting objects: 5, done.
+	Delta compression using up to 2 threads.
+	Compressing objects: 100% (2/2), done.
+	Writing objects: 100% (3/3), 242 bytes | 0 bytes/s, done.
+	Total 3 (delta 1), reused 0 (delta 0)
+	remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+	To https://github.com/nzbbody/GitTest
+	5109ccf..8cbb6c4  master -> master
+	niuzibin@ubuntu:/home/disk1/GitTest$ git log -4 --oneline --decorate   
+	8cbb6c4 (HEAD, origin/master, origin/HEAD, master) a
+	5109ccf b
+	b87db1d a
+	1e2d2d6 a
+	niuzibin@ubuntu:/home/disk1/GitTest$ git diff origin/master master     
+	niuzibin@ubuntu:/home/disk1/GitTest$ 
+3、fetch做的事情
+	仅仅修改本地的origin/master，也就是把远程master的数据拿回来
+4、示例如下：
+	niuzibin@ubuntu:/home/disk1/GitTest$ git fetch origin master
+	remote: Counting objects: 3, done.
+	remote: Compressing objects: 100% (1/1), done.
+	remote: Total 3 (delta 1), reused 3 (delta 1), pack-reused 0
+	Unpacking objects: 100% (3/3), done.
+	From https://github.com/nzbbody/GitTest
+	* branch            master     -> FETCH_HEAD
+	8cbb6c4..c1e2a1e  master     -> origin/master
+	niuzibin@ubuntu:/home/disk1/GitTest$ git diff origin/master master  
+	diff --git a/readme.txt b/readme.txt
+	index 1188fe1..db754db 100644
+	--- a/readme.txt
+	+++ b/readme.txt
+	@@ -1 +1 @@
+	-ccccc
+	+bbbbb
+5、需要merge一下
+	git merge origin/master
+6、pull做的事情
+	【git pull origin master】 = 【git fetch origin master】 + 【git merge origin/master】
+	
+	
+
+
+
+
+
+
+
+
 
 
 

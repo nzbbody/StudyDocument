@@ -67,41 +67,7 @@ insert into test1(pname) value("Andy");
 
 
 ###########################################################################################################################
-    /*** for test ***/
-    if (funcInfo.func_name == "compress")
-    {
-        string orgValue = "abcdefg";
-        
-        Item_string orgItem(make_thd_string(""), oldValue.length(), &my_charset_utf8_unicode_ci);
 
-        Item_func_compress compress(&strItem);
-        compress.fix_length_and_dec();
-        if(compress.val_str(NULL) == NULL)
-        {
-            return new Item_null_result();
-        }
-        string newValue(compress.val_str(NULL)->c_ptr(),compress.val_str(NULL)->length());
-        Item_string itemCom(make_thd_string(newValue), newValue.length(), &my_charset_utf8_unicode_ci);
-
-        if(funcInfo.func_name == "uncompress_compress")
-        {
-            Item_func_uncompress uncompress(&itemCom);
-            uncompress.fix_length_and_dec();
-            if(uncompress.val_str(NULL) == NULL)
-            {
-                return new Item_null_result();
-            }
-            string orgValue(uncompress.val_str(NULL)->c_ptr(),uncompress.val_str(NULL)->length());
-            return new Item_string(make_thd_string(orgValue), orgValue.length(), &my_charset_utf8_unicode_ci);
-        }
-        else
-        {
-            Item_func_uncompressed_length uncompressed_length(&itemCom);
-            uncompressed_length.fix_length_and_dec();
-            return new Item_int(uncompressed_length.val_int());
-        }
-    }
-    /*** for test ***/
 
 
  
@@ -143,3 +109,66 @@ insert into test1(pname) value("Andy");
 11、用户变量也不支持
 	set @a=123;
 	select @a;
+###########################################################################################################################
+目前还不支持的操作
+
+
+select "Andy\'\"\b\n\r\t\Z\\\%\_Bill";
+
+
+
+create table test1(id enc int, name enc varchar(64));
+
+###########################################################################################################################
+外键测试
+create table student(id int, name varchar(64), teacherid int,primary key(id),foreign key(teacherid) references teacher(id));
+
+
+###########################################################################################################################
+create table grade1(id enc int, name enc varchar(64));
+insert into grade1(id,name) value(1,"Andy"),(2,"Bill"),(3,"Caroline"),(4,"David");
+
+
+create table grade2(id enc int, name enc varchar(64));
+replace grade2 select * from grade1;
+
+
+
+create table grade1(id int, name varchar(64));
+insert into grade1(id,name) value(1,"Andy"),(2,"Bill"),(3,"Caroline"),(4,"David");
+
+
+create table grade2(id int, name varchar(64));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
