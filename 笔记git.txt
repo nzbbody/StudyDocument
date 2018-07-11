@@ -698,55 +698,185 @@ push、fetch、pull
 	
 	
 
+###########################################################################################################################
+改了之后，如何保证等价
+1、查询的sql打印出来，看看有没有%d %s
+2、检查select 与handle_result的对应关系
+3、检查return 是不是多了
+4、namecnt要检查查询回来的数据
+5、有子查询，怎么搞？
+	SELECT o_id, o_entry_d, COALESCE(o_carrier_id,0) FROM orders WHERE o_w_id = ? AND o_d_id = ? AND o_c_id = ? AND o_id = "
+                    " (SELECT MAX(o_id) FROM orders WHERE o_w_id = ? AND o_d_id = ? AND o_c_id = ?)",
+6、
+
+
+###########################################################################################################################
+有一个重大的问题如下：
+
+update导致其他的字段，发生变化，需要修改一下，先记录一下。
+mysql> select * from warehouse;                       
++------+-----------+----------------+--------------+--------------+---------+-----------+-------+-------+
+| w_id | w_name    | w_street_1     | w_street_2   | w_city       | w_state | w_zip     | w_tax | w_ytd |
++------+-----------+----------------+--------------+--------------+---------+-----------+-------+-------+
+| 1    | 3WAf6foT8 | OxjIRCUDCbPSiC | fjVVJ7ZoHCsw | L3Vj0E0PQUcb | 03      | 617966913 | 0.12  | 12    |
++------+-----------+----------------+--------------+--------------+---------+-----------+-------+-------+
+1 row in set (0.01 sec)
+
+mysql> UPDATE warehouse SET w_ytd = 6 WHERE w_id = 1;        
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from warehouse;                      
++------+-----------+----------------+--------------+--------------+---------+-----------+-------+-------+
+| w_id | w_name    | w_street_1     | w_street_2   | w_city       | w_state | w_zip     | w_tax | w_ytd |
++------+-----------+----------------+--------------+--------------+---------+-----------+-------+-------+
+| 1    | 3WAf6foT8 | OxjIRCUDCbPSiC | fjVVJ7ZoHCsw | L3Vj0E0PQUcb | 03      | 617966913 | 0.12  | 6     |
++------+-----------+----------------+--------------+--------------+---------+-----------+-------+-------+
+1 row in set (0.01 sec)
+
+mysql> UPDATE warehouse SET w_ytd = w_ytd + 6 WHERE w_id = 1;
+Query OK, 1 row affected (0.03 sec)
+
+mysql> select * from warehouse;                              
++------+-----------+----------------+--------------+--------------+---------+-----------+-------+-------+
+| w_id | w_name    | w_street_1     | w_street_2   | w_city       | w_state | w_zip     | w_tax | w_ytd |
++------+-----------+----------------+--------------+--------------+---------+-----------+-------+-------+
+| 1    | 3WAf6foT8 | OxjIRCUDCbPSiC | fjVVJ7ZoHCsw | L3Vj0E0PQUcb | 03      | 617966913 | 0.00  | 12    |
++------+-----------+----------------+--------------+--------------+---------+-----------+-------+-------+
+1 row in set (0.01 sec)
+
+w_ytd = w_ytd + 6 导致错误，需要找一下问题。
+w_tax是 float存在问题，如果是int没有问题，
+
+那我现在怎么做？
+先把w_tax 不加密，来测试一把。也不行
+
+w_ytd = 300000.00; 是写死的，因此，我使用 SET w_ytd = 6 这种方式，来设置。
+
+INSERT INTO history(h_c_d_id, h_c_w_id, h_c_id, h_d_id, h_w_id, h_date, h_amount, h_data) VALUES(3, 1, 2, 1, 1, '2018-07-04 22:13:07', 3385.000000, '.\').....Q.#07000Error: Bad Query: [INSERT INTO history(h_c_d_id, h_c_w_id, h_c_id, h_d_id, h_w_id, h_date, h_amount, h_data) VALUES(3, 1, 2, 1, 1, '2018-07-04 22:13:07', 3385.000000, '.\')]
+	Line 1736: Error Data: parse_sql
+
+###########################################################################################################################
+error: too few arguments to function ‘int MYSQLlex(void*, void*)’
+       yychar = yylex (&yylval);
+错误原因是：
+bision3.0不兼容
+sql_yacc.yy is incompatible with Bison 3.0
+解决办法：
+卸载老的bison，安装如下版本
+
+wget http://launchpadlibrarian.net/140087283/libbison-dev_2.7.1.dfsg-1_amd64.deb
+wget http://launchpadlibrarian.net/140087282/bison_2.7.1.dfsg-1_amd64.deb
+sudo dpkg -i libbison-dev_2.7.1.dfsg-1_amd64.deb
+sudo dpkg -i bison_2.7.1.dfsg-1_amd64.deb
+
+然后删除 mysql-src目录，重新构建
+###########################################################################################################################
+Benchmark
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+###########################################################################################################################
+BenchmarkSQL
+1、创建数据库和表
+	mysqladmin create tpcc -h127.0.0.1 -P3306 -uroot -pletmein
+	./runSQL.sh mysql.properties sqlTableCreates
+2、加载数据
+	./loadData.sh mysql.properties numWarehouses 1
+3、添加索引
+	./runSQL.sh mysql.properties sqlTableCreates
+4、测试
+	./runBenchmark.sh mysql
 	
 
 
 
+###########################################################################################################################
 
 
 
 
 
 
+###########################################################################################################################	
+BenchmarkSQL-233使用说明
+1、
+
+
+
+
+
+
+
+###########################################################################################################################
+
+
+
+
+###########################################################################################################################
+java版本的切换
+1、找出java的路径
+	niuzibin@ubuntu:/home/disk1/jdbc-client-test$ java -version
+	java version "1.7.0_181"
+	OpenJDK Runtime Environment (IcedTea 2.6.14) (7u181-2.6.14-0ubuntu0.1)
+	OpenJDK 64-Bit Server VM (build 24.181-b01, mixed mode)
+	
+	niuzibin@ubuntu:/home/disk1/jdbc-client-test$ whereis java
+	java: /usr/bin/java /usr/bin/X11/java /usr/share/java /usr/share/man/man1/java.1.gz
+	
+	niuzibin@ubuntu:/home/disk1/jdbc-client-test$ ll /usr/bin/java
+	lrwxrwxrwx 1 root root 22 Jul  7 23:06 /usr/bin/java -> /etc/alternatives/java*
+	
+	niuzibin@ubuntu:/home/disk1/jdbc-client-test$ ll /etc/alternatives/java
+	lrwxrwxrwx 1 root root 46 Jul  7 23:06 /etc/alternatives/java -> /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java*
+	
+	niuzibin@ubuntu:/home/disk1/jdbc-client-test$ ll /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
+	-rwxr-xr-x 1 root root 6408 Jun  9 02:10 /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java*
+2、找到1.8版本的java，然后设置软连接
+	sudo ln -s /home/niuzibin/work/FLKDBEnc/FLKWebCrypt/third_parties/jdk1.8.0_162/bin/java /etc/alternatives/java -f
+3、	
+###########################################################################################################################
+gitlab markdown
+测试一下
+
+
+
+
+
+###########################################################################################################################
+client gui
+1、使用java 1.8
+2、添加MySQL Driver Extra Class Path
+3、添加 Example Url
+	jdbc:mysql://127.0.0.1:3306/test?characterEncoding=utf-8&user=root&password=letmein
+	test是已存在的数据库
+	配置正确，显示对号
+4、添加别名
+	找到MySQL Driver
+	点击 login 测试
+5、点击login测试，会出现一些问题，解决办法如下
+	a、在文件 /etc/environment添加如下
+		export EDBDIR=/home/niuzibin/work/FLKDBEnc/FLKCDP
+		export CRYPTDB_SHADOW=${EDBDIR}/shadow	
+		为了让修改起效，需要执行source /etc/environment
+	b、在终端执行 source /etc/environment之后，然后启动 squirrel-sql.sh，如何找到 squirrel-sql.sh
+		sudo find / -iname "*squirrel*"
+		另外，通过桌面也能找到，如下：
+		niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP/tests$ sudo find / -iname "*squirrel*"
+		/home/niuzibin/.local/share/applications/SQuirreL SQL Client-1531207135031.desktop
+		/home/niuzibin/squirrel-sql-3.8.1/doc/licences/squirrel_licence.txt
+		/home/niuzibin/squirrel-sql-3.8.1/squirrel-sql.sh
+		niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP/tests$ cd /home/niuzibin/.local/share/applications/
+		niuzibin@ubuntu:~/.local/share/applications$ more SQuirreL\ SQL\ Client-1531207135031.desktop 
+		[Desktop Entry]
+		Categories=
+		Comment=An ISQL tool
+		Comment[en]=An ISQL tool
+		Encoding=UTF-8
+		Exec=/home/niuzibin/squirrel-sql-3.8.1/squirrel-sql.sh
+###########################################################################################################################
 
 
 
