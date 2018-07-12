@@ -877,6 +877,40 @@ client gui
 		Encoding=UTF-8
 		Exec=/home/niuzibin/squirrel-sql-3.8.1/squirrel-sql.sh
 ###########################################################################################################################
+2018-07-10 23:13:28: (critical) plugin proxy 0.8.4 started
+180710 23:13:50 InnoDB: The InnoDB memory heap is disabled
+180710 23:13:50 InnoDB: Mutexes and rw_locks use GCC atomic builtins
+180710 23:13:50 InnoDB: Compressed tables use zlib 1.2.8
+180710 23:13:50 InnoDB: Using Linux native AIO
+180710 23:13:50 InnoDB: Initializing buffer pool, size = 128.0M
+180710 23:13:50 InnoDB: Completed initialization of buffer pool
+180710 23:13:50  InnoDB: Operating system error number 2 in a file operation.
+InnoDB: The error means the system cannot find the path specified.
+InnoDB: If you are installing InnoDB, remember that you must create
+InnoDB: directories yourself, InnoDB does not create them.
+InnoDB: File name /usr/local/mysql/${EDBDIR}/shadow/ibdata1
+InnoDB: File operation call: 'create'.
+InnoDB: Cannot continue operation.
+
+
+###########################################################################################################################
+批量修改图片的属性
+1、全选所有图片：开始－－编辑－－查找和选择－－定位条件，点选“对象”，确定；
+2、右击任一图片，大小和属性，属性选项卡，点选“对象位置”中“大小和位置随单元格而变”。
+###########################################################################################################################
+增加透传的测试功能，TRUNCATE、SQLCOM_SHOW_PROCESSLIST,SQLCOM_SHOW_ENGINE_LOGS,SQLCOM_SHOW_ENGINE_STATUS,SQLCOM_SHOW_ENGINE_MUTEX,SQLCOM_SHOW_MASTER_STAT,SQLCOM_SHOW_SLAVE_STAT
+
+增加4个透传命令的测试功能，以及函数测试，去除同一类，支持率达到70%
+
+###########################################################################################################################
+验证流程：
+1、每个测试结果点击一下，看看是否有图片显示不对。
+2、修改的代码好好检查，commit，添加详细支持的log
+3、自动化跑一遍
+4、push代码
+5、提交 FunctionTest，添加详细的log
+
+
 
 
 
