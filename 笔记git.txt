@@ -261,16 +261,10 @@ cmake自动生成目录lib
 3、考虑第一种情况，ParamType是个指针或者引用，但不是万能引用
 	a、若expr具有引用型别，现将引用部分去掉
 	b、然后，对expr和ParamType的型别执行模式匹配，来决定T的型别
-	
-
 
 
 ###########################################################################################################################
 CItemMath_One和CItemStrconv
-
-
-
-
 
 
 
@@ -293,16 +287,6 @@ OPE::search(CB go_low)
 
 }
 导致ope_join测试用例失败
-###########################################################################################################################
-目前确认不支持的
-1、方法中是个表达式
-	select floor(id+1) from grade1;
-2、方法的嵌套
-	select floor(sin(id)) from grade1;
-3、两个参数、三个参数、参数不确定
-	
-4、
-
 
 ###########################################################################################################################
 su与sudo的再次理解
@@ -431,76 +415,6 @@ STOPPING THREADS................................................................
 
 
 ###########################################################################################################################
-tpcc-mysql测试cryptDB
-1、创建数据库
-	mysqladmin create yytest -h127.0.0.1 -P3307 -uroot -pletmein 
-2、添加表
-	mysql yytest -h127.0.0.1 -P3307 -uroot -pletmein < create_table.sql
-3、加载数据
-	./tpcc_load -h127.0.0.1 -P3307 -dyytest -uroot -pletmein -w1
-
-
-###########################################################################################################################
-push、fetch、pull
-1、push做的事情
-	a、修改本地的 origin/master
-	b、提交到远程
-2、示例如下：
-	niuzibin@ubuntu:/home/disk1/GitTest$ git log -4 --oneline --decorate 
-	8cbb6c4 (HEAD, master) a
-	5109ccf (origin/master, origin/HEAD) b
-	b87db1d a
-	1e2d2d6 a
-	niuzibin@ubuntu:/home/disk1/GitTest$ git diff origin/master master  
-	diff --git a/readme.txt b/readme.txt
-	index ccc3e7b..db754db 100644
-	--- a/readme.txt
-	+++ b/readme.txt
-	@@ -1 +1 @@
-	-aaaaa
-	+bbbbb
-	niuzibin@ubuntu:/home/disk1/GitTest$ sudo git push origin master:master
-	Counting objects: 5, done.
-	Delta compression using up to 2 threads.
-	Compressing objects: 100% (2/2), done.
-	Writing objects: 100% (3/3), 242 bytes | 0 bytes/s, done.
-	Total 3 (delta 1), reused 0 (delta 0)
-	remote: Resolving deltas: 100% (1/1), completed with 1 local object.
-	To https://github.com/nzbbody/GitTest
-	5109ccf..8cbb6c4  master -> master
-	niuzibin@ubuntu:/home/disk1/GitTest$ git log -4 --oneline --decorate   
-	8cbb6c4 (HEAD, origin/master, origin/HEAD, master) a
-	5109ccf b
-	b87db1d a
-	1e2d2d6 a
-	niuzibin@ubuntu:/home/disk1/GitTest$ git diff origin/master master     
-	niuzibin@ubuntu:/home/disk1/GitTest$ 
-3、fetch做的事情
-	仅仅修改本地的origin/master，也就是把远程master的数据拿回来
-4、示例如下：
-	niuzibin@ubuntu:/home/disk1/GitTest$ git fetch origin master
-	remote: Counting objects: 3, done.
-	remote: Compressing objects: 100% (1/1), done.
-	remote: Total 3 (delta 1), reused 3 (delta 1), pack-reused 0
-	Unpacking objects: 100% (3/3), done.
-	From https://github.com/nzbbody/GitTest
-	* branch            master     -> FETCH_HEAD
-	8cbb6c4..c1e2a1e  master     -> origin/master
-	niuzibin@ubuntu:/home/disk1/GitTest$ git diff origin/master master  
-	diff --git a/readme.txt b/readme.txt
-	index 1188fe1..db754db 100644
-	--- a/readme.txt
-	+++ b/readme.txt
-	@@ -1 +1 @@
-	-ccccc
-	+bbbbb
-5、需要merge一下
-	git merge origin/master
-6、pull做的事情
-	【git pull origin master】 = 【git fetch origin master】 + 【git merge origin/master】
-
-
-###########################################################################################################################
 有一个重大的问题如下：
 
 update导致其他的字段，发生变化，需要修改一下，先记录一下。
@@ -547,23 +461,6 @@ INSERT INTO history(h_c_d_id, h_c_w_id, h_c_id, h_d_id, h_w_id, h_date, h_amount
 
 
 ###########################################################################################################################
-BenchmarkSQL
-1、创建数据库和表
-	mysqladmin create tpcc -h127.0.0.1 -P3306 -uroot -pletmein
-	./runSQL.sh mysql.properties sqlTableCreates
-2、加载数据
-	./loadData.sh mysql.properties numWarehouses 1
-3、添加索引
-	./runSQL.sh mysql.properties sqlTableCreates
-4、测试
-	./runBenchmark.sh mysql
-
-###########################################################################################################################
-gitlab markdown
-测试一下
-
-
-###########################################################################################################################
 批量修改图片的属性
 1、全选所有图片：开始－－编辑－－查找和选择－－定位条件，点选“对象”，确定；
 2、右击任一图片，大小和属性，属性选项卡，点选“对象位置”中“大小和位置随单元格而变”。
@@ -584,142 +481,9 @@ https://note.youdao.com/group/#/65827312/(full:pdf/201146002)
 
 
 
-
-
-###########################################################################################################################
-涂成玉的两个安装包，自己测试一把
-
-另外的两个deb包，util和parse，也要安装一下。
-然后打包。
-
-
-mysql增加 automake
-还缺少 tlogin
-
 ###########################################################################################################################
 内存泄漏的代码好好整理一下
 
-
-
-
-
-
-
-
-
-
-
-
-###########################################################################################################################
-deb包制作、安装、运行、卸载
-1、准备的可执行文件，main
-2、制作脚本
-	#!/bin/sh
-	set -x
-	set -e
-	
-	shPath=$(cd $(dirname $0);pwd)
-	cd $shPath
-	
-	# read -p "please input version like 1.0.0:  " version
-	name="debtest"
-	version="1.0.0"
-	underline="_"
-	platform="amd64"
-	projName=${name}${underline}${version}${underline}${platform}
-	debName=${projName}".deb"
-	
-	if [  ! -d "./dist" ] ; then
-			mkdir "./dist"
-	fi
-	
-	cd ./dist
-	rm -fr *
-	
-	mkdir DEBIAN
-	cat>"./DEBIAN/control"<<EOF
-	package: $name
-	version: $version
-	architecture: $platform
-	maintainer: niuzibin
-	description: this is deb test
-	EOF
-	
-	mkdir -p ./usr/bin/
-	cp $shPath/main ./usr/bin/
-3、安装
-	./auto_deb.sh
-	sudo dpkg -i debtest_1.0.0_amd64.deb
-4、运行
-	main
-5、卸载
-	niuzibin@ubuntu:~/222$ dpkg -l |grep debtest                
-	ii  debtest                                               1.0.0                                               amd64        this is deb test
-	niuzibin@ubuntu:~/222$ sudo dpkg -r debtest
-	注意：卸载不是安装包的全称，而是 debtest
-###########################################################################################################################
-
-create table grade (id enc int, name enc varchar(64), chn enc int, math enc int, f1 enc float, f2 enc float, des varchar(64), primary key(id));
-insert into grade value(1,"Andy",70,70,5.4,5.6,"Andy"),(2,"Bill",75,75,6.4,6.6,"Bill"),(3,"Caroline",80,80,7.4,7.6,"Caroline"),(4,"David",85,85,8.4,8.6,"David");
-
-
-
-alter table stu add constraint fk_grade foreign key (id) references grade(id);
-
-
-delimiter ;;  
-create procedure proc1() 
-begin 
-select des  from grade;
-end
-;; 
-delimiter ;
-
-
-chn, abs(chn),f1, abs(f1),
-chn, sin(chn),f1, sin(f1),
-chn, cos(chn),f1, cos(f1),
-chn, sign(chn),f1, sign(f1),
-chn, exp(chn),f1, exp(f1),
-chn, floor(chn),f1, floor(f1),
-chn, ceiling(chn),f1, ceiling(f1),
-chn, log(chn),f1, log(f1),
-chn, log10(chn),f1, log10(f1),
-chn, log2(chn),f1, log2(f1),
-chn, sqrt(chn),f1, sqrt(f1),
-chn, tan(chn),f1, tan(f1),
-chn, cot(chn),f1, cot(f1),
-chn, acos(chn),f1, acos(f1),
-chn, asin(chn),f1, asin(f1),
-chn, atan(chn),f1, atan(f1),
-chn, degrees(chn),f1, degrees(f1),
-chn, radians(chn),f1, radians(f1),
-
-
-
-select 
-chn, abs(chn),f1, abs(f1),
-chn, sin(chn),f1, sin(f1),
-chn, cos(chn),f1, cos(f1),
-chn, sign(chn),f1, sign(f1),
-chn, exp(chn),f1, exp(f1),
-chn, floor(chn),f1, floor(f1),
-chn, ceiling(chn),f1, ceiling(f1),
-chn, log(chn),f1, log(f1),
-chn, log10(chn),f1, log10(f1),
-chn, log2(chn),f1, log2(f1),
-chn, sqrt(chn),f1, sqrt(f1),
-chn, tan(chn),f1, tan(f1),
-chn, cot(chn),f1, cot(f1),
-chn, acos(chn),f1, acos(f1),
-chn, asin(chn),f1, asin(f1),
-chn, atan(chn),f1, atan(f1),
-chn, degrees(chn),f1, degrees(f1),
-chn, radians(chn),f1, radians(f1) 
-from grade;
-
-
-proxy failed to retrieve default database
 
 
 ###########################################################################################################################
@@ -732,97 +496,8 @@ proxy failed to retrieve default database 这个问题，稍微处理一下
 4、直接return tpcc，true，然后 sudo make install
 5、flkcdp >/dev/null 2>&1 
 6、调用 test_load_flkcdp.sh
-###########################################################################################################################
-
-create table student(id enc int, name varchar(64), des enc varchar(64), chn enc int, math enc int, height enc float, weight enc float, primary key(id));
-insert into student value(1,"Andy", "I am Andy", 78, 89, 175.5, 80.5);
-insert into student value(2,"小明", "我来自杭州", 75, 85, 170.4, 68.5);
-insert into student value(3,"Bill", "I am boy", 74, 81, 165.5, 73.5);
-insert into student value(4,"小红", "我来自北京", 84, 86, 169.5, 73);
 
 
-select chn, math,chn+math,height,weight, height-weight from student;
-select chn, chn*2, chn/3, weight, weight*3, weight/5 from student;
-
-create table teacher(id enc int, name varchar (64), stuid enc int,primary key(id));
-alter table teacher add constraint fk_grade foreign key(stuid) references student(id);
-
-###########################################################################################################################
-中文插入失败
-在mysql添加 mysqld
-
-init-connect='SET NAMES UTF8'
-skip-character-set-client-handshake
-character-set-server=utf8
-collation-server=utf8_general_ci
-
-重启mysql，重新创建数据库
-
-###########################################################################################################################
-    alter table t1 add index index_c2(c2);
-    或者
-    create index index_c2 on t1(c2);
-	
-	
-	
-create table staff(id enc int auto_increment,name enc text,age enc int,salary enc decimal(10,2),score enc decimal(10,2),insurance decimal(10,2),fund decimal(10,2),description enc text,primary key(id));
-
-
-create table staff(id enc int, name enc text,age enc int,salary enc decimal(10,2),score enc decimal(10,2),insurance decimal(10,2),fund decimal(10,2),description enc text,primary key(id));
-	
-create table assets(id enc int, name varchar (64), staffid enc int,primary key(id));
-
-alter table assets add constraint fk_assets foreign key(staffid) references staff(id);
-
-create index index_age on staff(age);
-drop index index_age on staff;
-
-
-alter table staff add index index_age(age);
-alter table staff drop index index_age;
-
-
-
-
-###########################################################################################################################
-
-
-
-
-
-###########################################################################################################################
-只演示加减乘除 以及关键词的模糊搜索
--- 创建表，添加记录
-create table staff(id int, name enc varchar(64), height enc float, weight enc float, basepay enc float, meritpay enc float, des enc varchar(128));
-insert into staff value(1,"滕海明",178.5,176.25,1000.50,200.35,"I am Frank, hello");
-insert into staff value(2,"陈明",170.5,150.25,900.15,310.45,"我叫陈明, 我来自上海");
-insert into staff value(3,"杨万年",171.5,155.25,984.15,264.45,"我是杨万年，我是安徽人，hello");
-insert into staff value(4,"刘新超",172.25,165.25,635.15,561.45,"大家好，我是刘新超");
-insert into staff value(5,"钟倩",162.5,100.25,844.15,190.45,"我是钟倩，九零后");
-insert into staff value(6,"倪飞",173.25,163.25,987.15,256.45,"我叫倪飞，我是安徽人");
-insert into staff value(7,"牛自宾",175.5,170.25,810.15,315.45,"我是牛自宾，我来自安徽");
-
--- 查询所有的记录
-select * from staff;
-
--- 最大值最小值【基本工资】
-select max(basepay),min(basepay) from staff;
-
--- 密文的加减运算【基本工资+绩效工资】
-select basepay, meritpay, basepay+meritpay from staff;
-
--- 密文的乘除【基本工资】
-select basepay, basepay*1.1, basepay/2.5 from staff;
-
--- 密文的关键词模糊搜索
-
-select * from staff where name="杨万年";
-
-select * from staff where des like "%Frank%";
-select * from staff where des like "%hello";
-
-select * from staff where des like "%安徽";
-select * from staff where des like "%安徽%";
 
 ###########################################################################################################################
 curl 命令 ftp
@@ -835,18 +510,6 @@ curl 命令 ftp
 
 
 ############################################################################################################################
-
-
-
-
-
-
-
-
-
-
-###########################################################################################################################
-
 
 
 
