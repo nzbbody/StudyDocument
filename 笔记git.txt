@@ -14,27 +14,6 @@
 密码学有关
 密码学6个重要工具：对称密码、公钥密码、单向散列函数、消息认证码、数字签名和伪随机数生成器
 
-###########################################################################################################################
-https不可用
-1、https不可用
-	niuzibin@ubuntu:~/work/FLKDBEnc$ sudo git clone https://192.168.10.99/FLKDBEnc/FLKWebCrypt
-	Cloning into 'FLKWebCrypt'...
-	fatal: unable to access 'https://192.168.10.99/FLKDBEnc/FLKWebCrypt/': gnutls_handshake() failed: Handshake failed
-2、使用git@方式
-	https://192.168.10.99/profile/keys
-	找到generate it
-	本地执行 
-	ssh-keygen -t rsa -C "niuzibin@flksec.com"
-	cat ~/.ssh/id_rsa.pub
-3、产生的结果拷贝到 Key，然后add
-4、本地执行 git clone git@192.168.10.99:FLKDBEnc/FLKWebCrypt.git	
-###########################################################################################################################
-CLion缺少库，需要export怎么办？
-1、CLion报错，could not find java
-2、加上export就可以了，但是在CLion不知道在哪里添加
-3、换一种思路，在 .bashrc增加export，然后在shell脚本中，执行 source .bashrc
-	进入clion的执行路径，执行
-	/home/niuzibin/work/apps/clion-2016.1.1/bin/clion.sh
 
 ###########################################################################################################################
 kms密钥管理服务器
@@ -52,11 +31,6 @@ kms密钥管理服务器
 	需要客户端传输密钥
 6、
 	
-	
-###########################################################################################################################
-wiki编辑
-1、添加主题
-	http://192.168.10.70/doku.php?id=sidebar
 
 ###########################################################################################################################
 重要的错误
@@ -81,69 +55,6 @@ origin
 	root@ubuntu:/home/disk1/GitTest# git remote -v
 	origin  https://github.com/nzbbody/GitTest (fetch)
 	origin  https://github.com/nzbbody/GitTest (push)
-
-
-
-###########################################################################################################################
-ope join
-create database yytest;
-------------------------------------------------------------------------------------------------------------
-use yytest;
-drop if exists table course;
-create table course(id enc int, name enc varchar(64), chinese enc int, `math` enc int, english enc int);
-insert into course(id,name,chinese,math,english) value(1,"Andy", 70,80,90);
-insert into course(id,name,chinese,math,english) value(1,"Bill", 74,74,70);
-insert into course(id,name,chinese,math,english) value(1,"Caroline", 80,85,89);
-insert into course(id,name,chinese,math,english) value(1,"David", 80,75,74);
-insert into course(id,name,chinese,math,english) value(1,"Eric", 79,76,84);
-insert into course(id,name,chinese,math,english) value(1,"Frank", 85,72,73);
-------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------
-use yytest;
-drop if exists table course2;
-create table course2(id enc int, name enc varchar(64), chinese enc int, `math` enc int, english enc int);
-insert into course2(id,name,chinese,math,english) value(1,"Andy", 68,80,90);
-insert into course2(id,name,chinese,math,english) value(1,"Bill", 75,71,70);
-insert into course2(id,name,chinese,math,english) value(1,"Caroline", 81,85,89);
-insert into course2(id,name,chinese,math,english) value(1,"David", 81,75,74);
-insert into course2(id,name,chinese,math,english) value(1,"Eric", 80,76,84);
-insert into course2(id,name,chinese,math,english) value(1,"Frank", 86,72,73);
-------------------------------------------------------------------------------------------------------------
-
-
-select course.*, course2.* from course, course2 where course.name > course2.name and course.chinese > course2.chinese;
-
-
-select * from course;
-select * from course where chinese > 75;
-
-UPDATE `yytest`.table_PTKLRHEBIO    SET BIYJSNVOVGoOrder = cast(cryptdb_decrypt_int_sem(`yytest`.`table_PTKLRHEBIO`.`BIYJSNVOVGoOrder` AS `BIYJSNVOVGoOrder`,'.SO\Z..>.s{^[....',`yytest`.`table_PTKLRHEBIO`.`cdb_saltOZVHWSXTKN` AS `cdb_saltOZVHWSXTKN`) as unsigned);
-
-select * from course where chinese = math;
-
-select * from course where chinese > math;
-思考，在哪里剥的洋葱？
-
-
-OPE存在的问题
-1、目前的OPE只支持 select * from course where chinese > 75;
-	不支持 select * from course where chinese > math;
-	也就是说，支持和常数的比较，不支持和其他字段的比较。
-2、为什么？
-	要支持OPE操作，必须使用的密钥相同，如果不相同肯定不行。
-	目前不同字段OPE算法的密钥是不同的，产生密钥使用seedkey和扩展的字段名（这个是随机的），
-	如果要支持不同字段的OPE操作，字段名这个参数必须相同。
-3、但是这样就不安全了，支持OPE的不同字段，使用相同的参数，产生相同的密钥。
-4、cryptdb有可能是故意不支持的。
-5、支持的功能和安全性相互冲突，必须找到一个平衡点。
-
-
-
-考虑不同表？
-
-create table t1(id enc int);
-
-select cryptdb_decrypt_int_ope(GAAAROSNIEoOrder,'111',cdb_saltGYIIPPWTGJ) from table_KJSSJVNTFI;
 
 
 ###########################################################################################################################
@@ -198,54 +109,6 @@ DETFactory::deserialize(unsigned int id, const SerialLayer &sl)
         FAIL_TextMessageError("Unknown type for DET deserialization!");
     }
 }
-
-###########################################################################################################################
-MySQL的UDF
-1、MySQL的UDF(user-defined function)，用户自定义函数，
-
-好好搞一下 base64_encode 弄一下
-
-
-
-
-
-
-
-###########################################################################################################################
-ope join
-create database yytest;
-------------------------------------------------------------------------------------------------------------
-use yytest;
-
-
-create table grade1(id enc int, name enc varchar(64), chn enc int, `math` enc int);
-insert into grade1(id,name,chn,math) value(1,"Andy", 70,75);
-insert into grade1(id,name,chn,math) value(2,"Bill", 75,74);
-insert into grade1(id,name,chn,math) value(3,"Caroline", 80,78);
-insert into grade1(id,name,chn,math) value(4,"David", 85,90);
-
-
-create table grade2(id enc int, name enc varchar(64), chn enc int, `math` enc int);
-insert into grade2(id,name,chn,math) value(1,"Andy", 72,73);
-insert into grade2(id,name,chn,math) value(2,"Bill", 78,72);
-insert into grade2(id,name,chn,math) value(3,"Caroline", 76,90);
-insert into grade2(id,name,chn,math) value(4,"David", 88,76);
-
-
-
-create table grade3(id enc int, name enc varchar(64), lastname enc varchar(64),chn enc int, `math` enc int);
-insert into grade3(id,name,lastname,chn,math) value(1,"Andy", "Green",70,75);
-insert into grade3(id,name,lastname,chn,math) value(2,"Bill", "James",75,74);
-insert into grade3(id,name,lastname,chn,math) value(3,"Caroline", "Onil",80,78);
-insert into grade3(id,name,lastname,chn,math) value(4,"David", "Bill",85,90);
-insert into grade3(id,name,lastname,chn,math) value(5,"Andy1", "Green",70,75);
-insert into grade3(id,name,lastname,chn,math) value(6,"Andy2", "Green",70,75);
-insert into grade3(id,name,lastname,chn,math) value(7,"Andy3", "Green",70,75);
-insert into grade3(id,name,lastname,chn,math) value(8,"Andy4", "Green",70,75);
-
-
-
-select * from grade3 where lastname > name;
 
 
 ###########################################################################################################################
@@ -302,10 +165,6 @@ mysql的varbinary
 1、word的F4，重复上一步操作
 2、excel中 Ctrl+E 操作
 
-###########################################################################################################################
-16.4 安装gitlab
-不行就手动安装
-手动安装已经OK
 
 ###########################################################################################################################
 cmake自动生成目录lib
@@ -313,35 +172,6 @@ cmake自动生成目录lib
 	SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 
-###########################################################################################################################
-chmod的区别
-1、比较 【sudo chmod 777 ./* -R】 和 【sudo chmod 777 ./ -R】，如下：
-	niuzibin@ubuntu:~/111/ccc$ sudo chmod 777 ./* -R
-	niuzibin@ubuntu:~/111/ccc$ ll
-	total 8
-	drwxrwxr-x 2 niuzibin niuzibin 4096 Jun 14 11:22 ./
-	drwxrwxr-x 4 niuzibin niuzibin 4096 Jun 14 11:22 ../
-	-rwxrwxrwx 1 niuzibin niuzibin    0 Jun 14 11:22 aaa*
-	niuzibin@ubuntu:~/111/ccc$ sudo chmod 777 ./ -R 
-	niuzibin@ubuntu:~/111/ccc$ ll
-	total 8
-	drwxrwxrwx 2 niuzibin niuzibin 4096 Jun 14 11:22 ./
-	drwxrwxr-x 4 niuzibin niuzibin 4096 Jun 14 11:22 ../
-	-rwxrwxrwx 1 niuzibin niuzibin    0 Jun 14 11:22 aaa*
-2、也就是说，sudo chmod 777 ./* -R 不能改变当前目录的权限
-
-###########################################################################################################################	
-itemTypes.reg(Item::Type::FUNC_ITEM, *this);
-在这里注册
-
-
-###########################################################################################################################	
-clion使用很卡
-1、设置一下
-	File --> Settings --> Editor --> General --> Code Completion 取消掉
-	File --> Settings --> Editor --> General --> Inspections C/C++取消掉
-2、取消Power Save Mode
-	找到右下角的人头，设置设置 Highlighting Level到最低
 ###########################################################################################################################	
 思考洋葱的流程
 1、考虑 select * from grade1 where chn > math; 流程是什么？
@@ -371,19 +201,6 @@ clion使用很卡
 		};
 		上面是初始化的洋葱集合，以及每个洋葱的最里层。
 	c、select是eq洋葱，select回来的结果，也要使用eq洋葱解密。
-###########################################################################################################################	
-思考洋葱的流程
-1、思考
-	select name from grade1; 和 select upper(name) from grade1; 是如何选择洋葱的？
-	找到这个关键方法，return lookup(i).do_gather(i, a);
-	--> class CItemStrconv : public CItemSubtypeFN<Item_str_conv, NAME>
-	--> RewritePlan * do_gather_type
-	--> typical_gather_string
-###########################################################################################################################	
-move与forward学习
-1、一定要学习好
-
-
 
 
 
@@ -485,20 +302,6 @@ OPE::search(CB go_low)
 3、两个参数、三个参数、参数不确定
 	
 4、
-
-
-###########################################################################################################################
-ope_join测试用例失败的原因分析
-1、cmake 静态库的代码修改，动态库 make 没有重新链接，必须先要make clean一下
-2、动态库edb.so修改了，安装到mysql服务，必须重启一下mysql服务
-3、也就是会出现：
-	没有clean，没有重启mysql，测试OK
-	clean，并且重启mysql，测试OK
-4、ope_join测试用例失败的原因找到了，：杨万年修改了ope的算法，静态库libedbcrypto_static.a发生变化，生成的edb.so的时候，先clean，再make
-	edb.so变化，并且注册到mysql服务，但是没有重启mysql服务，导致剥洋葱的update操作失败。	
-	另外还存在一个camek的问题，大家注意一下，动态库 a.so 链接静态库 b.a， 静态库b.a代码修改，重新编译， 生成动态库a.so时候，必须clean一下，否则a.so不会更新。	
-	有些人的本地，没有重启mysql服务，ope_join测试也是成功的，原因是 生成edb.so的时候，没有clean，实际上一直没有更新edb.so
-
 
 
 ###########################################################################################################################
@@ -695,19 +498,6 @@ push、fetch、pull
 	git merge origin/master
 6、pull做的事情
 	【git pull origin master】 = 【git fetch origin master】 + 【git merge origin/master】
-	
-	
-
-###########################################################################################################################
-改了之后，如何保证等价
-1、查询的sql打印出来，看看有没有%d %s
-2、检查select 与handle_result的对应关系
-3、检查return 是不是多了
-4、namecnt要检查查询回来的数据
-5、有子查询，怎么搞？
-	SELECT o_id, o_entry_d, COALESCE(o_carrier_id,0) FROM orders WHERE o_w_id = ? AND o_d_id = ? AND o_c_id = ? AND o_id = "
-                    " (SELECT MAX(o_id) FROM orders WHERE o_w_id = ? AND o_d_id = ? AND o_c_id = ?)",
-6、
 
 
 ###########################################################################################################################
@@ -755,28 +545,6 @@ w_ytd = 300000.00; 是写死的，因此，我使用 SET w_ytd = 6 这种方式�
 INSERT INTO history(h_c_d_id, h_c_w_id, h_c_id, h_d_id, h_w_id, h_date, h_amount, h_data) VALUES(3, 1, 2, 1, 1, '2018-07-04 22:13:07', 3385.000000, '.\').....Q.#07000Error: Bad Query: [INSERT INTO history(h_c_d_id, h_c_w_id, h_c_id, h_d_id, h_w_id, h_date, h_amount, h_data) VALUES(3, 1, 2, 1, 1, '2018-07-04 22:13:07', 3385.000000, '.\')]
 	Line 1736: Error Data: parse_sql
 
-###########################################################################################################################
-error: too few arguments to function ‘int MYSQLlex(void*, void*)’
-       yychar = yylex (&yylval);
-错误原因是：
-bision3.0不兼容
-sql_yacc.yy is incompatible with Bison 3.0
-解决办法：
-卸载老的bison，安装如下版本
-
-wget http://launchpadlibrarian.net/140087283/libbison-dev_2.7.1.dfsg-1_amd64.deb
-wget http://launchpadlibrarian.net/140087282/bison_2.7.1.dfsg-1_amd64.deb
-sudo dpkg -i libbison-dev_2.7.1.dfsg-1_amd64.deb
-sudo dpkg -i bison_2.7.1.dfsg-1_amd64.deb
-
-然后删除 mysql-src目录，重新构建
-###########################################################################################################################
-Benchmark
-
-
-
-
-
 
 ###########################################################################################################################
 BenchmarkSQL
@@ -789,118 +557,17 @@ BenchmarkSQL
 	./runSQL.sh mysql.properties sqlTableCreates
 4、测试
 	./runBenchmark.sh mysql
-	
 
-
-
-###########################################################################################################################
-
-
-
-
-
-
-###########################################################################################################################	
-BenchmarkSQL-233使用说明
-1、
-
-
-
-
-
-
-
-###########################################################################################################################
-
-
-
-
-###########################################################################################################################
-java版本的切换
-1、找出java的路径
-	niuzibin@ubuntu:/home/disk1/jdbc-client-test$ java -version
-	java version "1.7.0_181"
-	OpenJDK Runtime Environment (IcedTea 2.6.14) (7u181-2.6.14-0ubuntu0.1)
-	OpenJDK 64-Bit Server VM (build 24.181-b01, mixed mode)
-	
-	niuzibin@ubuntu:/home/disk1/jdbc-client-test$ whereis java
-	java: /usr/bin/java /usr/bin/X11/java /usr/share/java /usr/share/man/man1/java.1.gz
-	
-	niuzibin@ubuntu:/home/disk1/jdbc-client-test$ ll /usr/bin/java
-	lrwxrwxrwx 1 root root 22 Jul  7 23:06 /usr/bin/java -> /etc/alternatives/java*
-	
-	niuzibin@ubuntu:/home/disk1/jdbc-client-test$ ll /etc/alternatives/java
-	lrwxrwxrwx 1 root root 46 Jul  7 23:06 /etc/alternatives/java -> /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java*
-	
-	niuzibin@ubuntu:/home/disk1/jdbc-client-test$ ll /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
-	-rwxr-xr-x 1 root root 6408 Jun  9 02:10 /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java*
-2、找到1.8版本的java，然后设置软连接
-	sudo ln -s /home/niuzibin/work/FLKDBEnc/FLKWebCrypt/third_parties/jdk1.8.0_162/bin/java /etc/alternatives/java -f
-3、	
 ###########################################################################################################################
 gitlab markdown
 测试一下
-
-
-
-
-
-###########################################################################################################################
-client gui
-1、使用java 1.8
-2、添加MySQL Driver Extra Class Path
-3、添加 Example Url
-	jdbc:mysql://127.0.0.1:3306/test?characterEncoding=utf-8&user=root&password=letmein
-	test是已存在的数据库
-	配置正确，显示对号
-4、添加别名
-	找到MySQL Driver
-	点击 login 测试
-5、点击login测试，会出现一些问题，解决办法如下
-	a、在文件 /etc/environment添加如下
-		export EDBDIR=/home/niuzibin/work/FLKDBEnc/FLKCDP
-		export CRYPTDB_SHADOW=${EDBDIR}/shadow	
-		为了让修改起效，需要执行source /etc/environment
-	b、在终端执行 source /etc/environment之后，然后启动 squirrel-sql.sh，如何找到 squirrel-sql.sh
-		sudo find / -iname "*squirrel*"
-		另外，通过桌面也能找到，如下：
-		niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP/tests$ sudo find / -iname "*squirrel*"
-		/home/niuzibin/.local/share/applications/SQuirreL SQL Client-1531207135031.desktop
-		/home/niuzibin/squirrel-sql-3.8.1/doc/licences/squirrel_licence.txt
-		/home/niuzibin/squirrel-sql-3.8.1/squirrel-sql.sh
-		niuzibin@ubuntu:~/work/FLKDBEnc/FLKCDP/tests$ cd /home/niuzibin/.local/share/applications/
-		niuzibin@ubuntu:~/.local/share/applications$ more SQuirreL\ SQL\ Client-1531207135031.desktop 
-		[Desktop Entry]
-		Categories=
-		Comment=An ISQL tool
-		Comment[en]=An ISQL tool
-		Encoding=UTF-8
-		Exec=/home/niuzibin/squirrel-sql-3.8.1/squirrel-sql.sh
-###########################################################################################################################
-2018-07-10 23:13:28: (critical) plugin proxy 0.8.4 started
-180710 23:13:50 InnoDB: The InnoDB memory heap is disabled
-180710 23:13:50 InnoDB: Mutexes and rw_locks use GCC atomic builtins
-180710 23:13:50 InnoDB: Compressed tables use zlib 1.2.8
-180710 23:13:50 InnoDB: Using Linux native AIO
-180710 23:13:50 InnoDB: Initializing buffer pool, size = 128.0M
-180710 23:13:50 InnoDB: Completed initialization of buffer pool
-180710 23:13:50  InnoDB: Operating system error number 2 in a file operation.
-InnoDB: The error means the system cannot find the path specified.
-InnoDB: If you are installing InnoDB, remember that you must create
-InnoDB: directories yourself, InnoDB does not create them.
-InnoDB: File name /usr/local/mysql/${EDBDIR}/shadow/ibdata1
-InnoDB: File operation call: 'create'.
-InnoDB: Cannot continue operation.
 
 
 ###########################################################################################################################
 批量修改图片的属性
 1、全选所有图片：开始－－编辑－－查找和选择－－定位条件，点选“对象”，确定；
 2、右击任一图片，大小和属性，属性选项卡，点选“对象位置”中“大小和位置随单元格而变”。
-###########################################################################################################################
-增加透传的测试功能，TRUNCATE、SQLCOM_SHOW_PROCESSLIST,SQLCOM_SHOW_ENGINE_LOGS,SQLCOM_SHOW_ENGINE_STATUS,SQLCOM_SHOW_ENGINE_MUTEX,SQLCOM_SHOW_MASTER_STAT,SQLCOM_SHOW_SLAVE_STAT
 
-增加4个透传命令的测试功能，以及函数测试，去除同一类，支持率达到70%
 
 ###########################################################################################################################
 验证流程：
@@ -909,6 +576,276 @@ InnoDB: Cannot continue operation.
 3、自动化跑一遍
 4、push代码
 5、提交 FunctionTest，添加详细的log
+
+###########################################################################################################################
+配置runner ci
+https://note.youdao.com/group/#/65827312/(full:pdf/201146002)
+
+
+
+
+
+
+###########################################################################################################################
+涂成玉的两个安装包，自己测试一把
+
+另外的两个deb包，util和parse，也要安装一下。
+然后打包。
+
+
+mysql增加 automake
+还缺少 tlogin
+
+###########################################################################################################################
+内存泄漏的代码好好整理一下
+
+
+
+
+
+
+
+
+
+
+
+
+###########################################################################################################################
+deb包制作、安装、运行、卸载
+1、准备的可执行文件，main
+2、制作脚本
+	#!/bin/sh
+	set -x
+	set -e
+	
+	shPath=$(cd $(dirname $0);pwd)
+	cd $shPath
+	
+	# read -p "please input version like 1.0.0:  " version
+	name="debtest"
+	version="1.0.0"
+	underline="_"
+	platform="amd64"
+	projName=${name}${underline}${version}${underline}${platform}
+	debName=${projName}".deb"
+	
+	if [  ! -d "./dist" ] ; then
+			mkdir "./dist"
+	fi
+	
+	cd ./dist
+	rm -fr *
+	
+	mkdir DEBIAN
+	cat>"./DEBIAN/control"<<EOF
+	package: $name
+	version: $version
+	architecture: $platform
+	maintainer: niuzibin
+	description: this is deb test
+	EOF
+	
+	mkdir -p ./usr/bin/
+	cp $shPath/main ./usr/bin/
+3、安装
+	./auto_deb.sh
+	sudo dpkg -i debtest_1.0.0_amd64.deb
+4、运行
+	main
+5、卸载
+	niuzibin@ubuntu:~/222$ dpkg -l |grep debtest                
+	ii  debtest                                               1.0.0                                               amd64        this is deb test
+	niuzibin@ubuntu:~/222$ sudo dpkg -r debtest
+	注意：卸载不是安装包的全称，而是 debtest
+###########################################################################################################################
+
+create table grade (id enc int, name enc varchar(64), chn enc int, math enc int, f1 enc float, f2 enc float, des varchar(64), primary key(id));
+insert into grade value(1,"Andy",70,70,5.4,5.6,"Andy"),(2,"Bill",75,75,6.4,6.6,"Bill"),(3,"Caroline",80,80,7.4,7.6,"Caroline"),(4,"David",85,85,8.4,8.6,"David");
+
+
+
+alter table stu add constraint fk_grade foreign key (id) references grade(id);
+
+
+delimiter ;;  
+create procedure proc1() 
+begin 
+select des  from grade;
+end
+;; 
+delimiter ;
+
+
+chn, abs(chn),f1, abs(f1),
+chn, sin(chn),f1, sin(f1),
+chn, cos(chn),f1, cos(f1),
+chn, sign(chn),f1, sign(f1),
+chn, exp(chn),f1, exp(f1),
+chn, floor(chn),f1, floor(f1),
+chn, ceiling(chn),f1, ceiling(f1),
+chn, log(chn),f1, log(f1),
+chn, log10(chn),f1, log10(f1),
+chn, log2(chn),f1, log2(f1),
+chn, sqrt(chn),f1, sqrt(f1),
+chn, tan(chn),f1, tan(f1),
+chn, cot(chn),f1, cot(f1),
+chn, acos(chn),f1, acos(f1),
+chn, asin(chn),f1, asin(f1),
+chn, atan(chn),f1, atan(f1),
+chn, degrees(chn),f1, degrees(f1),
+chn, radians(chn),f1, radians(f1),
+
+
+
+select 
+chn, abs(chn),f1, abs(f1),
+chn, sin(chn),f1, sin(f1),
+chn, cos(chn),f1, cos(f1),
+chn, sign(chn),f1, sign(f1),
+chn, exp(chn),f1, exp(f1),
+chn, floor(chn),f1, floor(f1),
+chn, ceiling(chn),f1, ceiling(f1),
+chn, log(chn),f1, log(f1),
+chn, log10(chn),f1, log10(f1),
+chn, log2(chn),f1, log2(f1),
+chn, sqrt(chn),f1, sqrt(f1),
+chn, tan(chn),f1, tan(f1),
+chn, cot(chn),f1, cot(f1),
+chn, acos(chn),f1, acos(f1),
+chn, asin(chn),f1, asin(f1),
+chn, atan(chn),f1, atan(f1),
+chn, degrees(chn),f1, degrees(f1),
+chn, radians(chn),f1, radians(f1) 
+from grade;
+
+
+proxy failed to retrieve default database
+
+
+###########################################################################################################################
+proxy failed to retrieve default database 这个问题，稍微处理一下
+
+操作步骤
+1、return tpcc注释掉，vi ../sqlhandler/rewrite/src/rewrite_util.cc 837行
+2、调用rebuild_clear_all.sh
+3、开启flkcdp，创建数据库 tpcc，然后关闭
+4、直接return tpcc，true，然后 sudo make install
+5、flkcdp >/dev/null 2>&1 
+6、调用 test_load_flkcdp.sh
+###########################################################################################################################
+
+create table student(id enc int, name varchar(64), des enc varchar(64), chn enc int, math enc int, height enc float, weight enc float, primary key(id));
+insert into student value(1,"Andy", "I am Andy", 78, 89, 175.5, 80.5);
+insert into student value(2,"小明", "我来自杭州", 75, 85, 170.4, 68.5);
+insert into student value(3,"Bill", "I am boy", 74, 81, 165.5, 73.5);
+insert into student value(4,"小红", "我来自北京", 84, 86, 169.5, 73);
+
+
+select chn, math,chn+math,height,weight, height-weight from student;
+select chn, chn*2, chn/3, weight, weight*3, weight/5 from student;
+
+create table teacher(id enc int, name varchar (64), stuid enc int,primary key(id));
+alter table teacher add constraint fk_grade foreign key(stuid) references student(id);
+
+###########################################################################################################################
+中文插入失败
+在mysql添加 mysqld
+
+init-connect='SET NAMES UTF8'
+skip-character-set-client-handshake
+character-set-server=utf8
+collation-server=utf8_general_ci
+
+重启mysql，重新创建数据库
+
+###########################################################################################################################
+    alter table t1 add index index_c2(c2);
+    或者
+    create index index_c2 on t1(c2);
+	
+	
+	
+create table staff(id enc int auto_increment,name enc text,age enc int,salary enc decimal(10,2),score enc decimal(10,2),insurance decimal(10,2),fund decimal(10,2),description enc text,primary key(id));
+
+
+create table staff(id enc int, name enc text,age enc int,salary enc decimal(10,2),score enc decimal(10,2),insurance decimal(10,2),fund decimal(10,2),description enc text,primary key(id));
+	
+create table assets(id enc int, name varchar (64), staffid enc int,primary key(id));
+
+alter table assets add constraint fk_assets foreign key(staffid) references staff(id);
+
+create index index_age on staff(age);
+drop index index_age on staff;
+
+
+alter table staff add index index_age(age);
+alter table staff drop index index_age;
+
+
+
+
+###########################################################################################################################
+
+
+
+
+
+###########################################################################################################################
+只演示加减乘除 以及关键词的模糊搜索
+-- 创建表，添加记录
+create table staff(id int, name enc varchar(64), height enc float, weight enc float, basepay enc float, meritpay enc float, des enc varchar(128));
+insert into staff value(1,"滕海明",178.5,176.25,1000.50,200.35,"I am Frank, hello");
+insert into staff value(2,"陈明",170.5,150.25,900.15,310.45,"我叫陈明, 我来自上海");
+insert into staff value(3,"杨万年",171.5,155.25,984.15,264.45,"我是杨万年，我是安徽人，hello");
+insert into staff value(4,"刘新超",172.25,165.25,635.15,561.45,"大家好，我是刘新超");
+insert into staff value(5,"钟倩",162.5,100.25,844.15,190.45,"我是钟倩，九零后");
+insert into staff value(6,"倪飞",173.25,163.25,987.15,256.45,"我叫倪飞，我是安徽人");
+insert into staff value(7,"牛自宾",175.5,170.25,810.15,315.45,"我是牛自宾，我来自安徽");
+
+-- 查询所有的记录
+select * from staff;
+
+-- 最大值最小值【基本工资】
+select max(basepay),min(basepay) from staff;
+
+-- 密文的加减运算【基本工资+绩效工资】
+select basepay, meritpay, basepay+meritpay from staff;
+
+-- 密文的乘除【基本工资】
+select basepay, basepay*1.1, basepay/2.5 from staff;
+
+-- 密文的关键词模糊搜索
+
+select * from staff where name="杨万年";
+
+select * from staff where des like "%Frank%";
+select * from staff where des like "%hello";
+
+select * from staff where des like "%安徽";
+select * from staff where des like "%安徽%";
+
+###########################################################################################################################
+curl 命令 ftp
+
+
+
+
+
+
+
+
+############################################################################################################################
+
+
+
+
+
+
+
+
+
+
+###########################################################################################################################
 
 
 
