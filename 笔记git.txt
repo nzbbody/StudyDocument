@@ -58,18 +58,6 @@ origin
 
 
 ###########################################################################################################################
-git fetch pull push再去了解一下
-
-
-###########################################################################################################################
-diff命令
-1、diff比较分支，必须是已经提交的分支
-2、merge只能是merge，提交的分支
-
-
-
-
-###########################################################################################################################
 加密模式的区别
 1、SENSITIVE等级最高，BEST_EFFORT相对于SENSITIVE，只是多了一个洋葱，支持剥到明文，PLAIN就是明文。
 2、BEST_EFFORT和SENSITIVE，会根据实际需要配置洋葱层，在使用的过程中，为了支持，会剥掉洋葱。
@@ -293,127 +281,6 @@ su与sudo的再次理解
 
 
 
-
-
-
-
-###########################################################################################################################
-tpcc-mysql的性能测试
-1、下载源码，构建
-	git clone https://github.com/Percona-Lab/tpcc-mysql.git
-	进入tpcc-mysql/src目录，执行make构建，生成tpcc_load和tpcc_start可执行文件，说明构建OK
-2、准备工作
-	a、创建数据库  
-	mysqladmin create tpcc1000 -h127.0.0.1 -P3306 -uroot -pletmein 
-	b、创建相应数据表  
-	mysql tpcc1000 -h127.0.0.1 -P3306 -uroot -pletmein < create_table.sql  
-	c、创建索引  
-	mysql tpcc1000 -h127.0.0.1 -P3306 -uroot -pletmein < add_fkey_idx.sql  	
-	d、装载数据  
-	./tpcc_load -h127.0.0.1 -P3306 -dtpcc1000 -uroot -pletmein -w 1 
-3、执行测试
-	./tpcc_start -h127.0.0.1 -P3306 -dtpcc1000 -uroot -p123321 -w1 -c32 -r10 -l60
-	选项解释如下：
-	-w 指定仓库数量
-	-c 指定并发连接数
-	-r 指定开始测试前进行warmup的时间，进行预热后，测试效果更好
-	-l 指定测试持续时间
-	-i  指定生成报告间隔时长
-	-f 指定生成的报告文件名
-	也可以生成文件如下： 
-	./tpcc_start -h127.0.0.1 -P3306 -dtpcc1000 -uroot -w1 -c32 -r10 -l60 -f tpcc_mysql_20180617.log > tpcc_caseX_20180617.log 2>&1
-4、表的业务逻辑
-	New-Order：新订单，主要对应 new_orders 表
-	Payment：支付，主要对应 orders、history 表
-	Order-Status：订单状态，主要对应 orders、order_line 表
-	Delivery：发货，主要对应 order_line 表
-	Stock-Level：库存，主要对应 stock 表
-	
-	其他相关表：
-	客户：主要对应 customer 表
-	地区：主要对应 district 表
-	商品：主要对应 item 表
-	仓库：主要对应 warehouse 表
-5、报告分析
-***************************************
-*** ###easy### TPC-C Load Generator ***
-***************************************
-option h with value '1.2.3.4'   -- 主机
-option P with value '3306'             -- 端口
-option d with value 'tpcc10'         -- 数据库
-option u with value 'tpcc'             -- 账号
-option p with value 'tpcc'             -- 密码
-option w with value '10'                 -- 仓库数
-option c with value '64'                 -- 并发线程数
-option r with value '30'                 -- 数据预热时长
-option l with value '120'               -- 压测时长
-option f with value 'tpcclog_20140921_64_THREADS.res'  -- 输出报告日志文件
-
-     [server]: 1.2.3.4
-     [port]: 3306
-     [DBname]: tpcc10
-       [user]: tpcc
-       [pass]: tpcc
-  [warehouse]: 10
- [connection]: 64
-     [rampup]: 30 (sec.)
-    [measure]: 120 (sec.)
-
-RAMP-UP TIME.(30 sec.)
-
--- 预热结束，开始进行压测
-MEASURING START.
-
--- 每10秒钟输出一次压测数据
-  10, 8376(0):2.744|3.211, 8374(0):0.523|1.626, 838(0):0.250|0.305, 837(0):3.241|3.518, 839(0):9.086|10.676
-  20, 8294(0):2.175|2.327, 8292(0):0.420|0.495, 829(0):0.206|0.243, 827(0):2.489|2.593, 827(0):7.214|7.646
-…
- 110, 8800(0):2.149|2.458, 8792(0):0.424|0.710, 879(0):0.207|0.244, 878(0):2.461|2.556, 878(0):7.042|7.341
- 120, 8819(0):2.147|2.327, 8820(0):0.424|0.568, 882(0):0.208|0.237, 881(0):2.483|2.561, 883(0):7.025|7.405
--- 以逗号分隔，共6列
--- 第一列，第N次10秒
--- 第二列，总成功执行压测的次数(总推迟执行压测的次数):90%事务的响应时间|本轮测试最大响应时间
--- 第三列，新订单业务成功执行次数(推迟执行次数):90%事务的响应时间|本轮测试最大响应时间
--- 第四列，支付业务的结果，后面几个的意义同上
--- 第五列，发货业务的结果，后面几个的意义同上
--- 第六列，库存业务的结果，后面几个的意义同上
-
--- 压测结束
-STOPPING THREADS................................................................
-
-   -- 第一次粗略结果统计
-  [0] sc:100589  lt:0  rt:0  fl:0    -- New-Order，新订单业务成功(success,简写sc)次数，延迟(late,简写lt)次数，重试(retry,简写rt)次数，失败(failure,简写fl)次数
-  [1] sc:100552  lt:0  rt:0  fl:0    -- Payment，支付业务统计，其他同上
-  [2] sc:10059  lt:0  rt:0  fl:0    -- Order-Status，订单状态业务统计，其他同上
-  [3] sc:10057  lt:0  rt:0  fl:0    -- Delivery，发货业务统计，其他同上
-  [4] sc:10058  lt:0  rt:0  fl:0    -- Stock-Level，库存业务统计，其他同上
- in 120 sec.
-
-    -- 第二次粗略统计结果，其他同上
-  [0] sc:100590  lt:0  rt:0  fl:0 
-  [1] sc:100582  lt:0  rt:0  fl:0 
-  [2] sc:10059  lt:0  rt:0  fl:0 
-  [3] sc:10057  lt:0  rt:0  fl:0 
-  [4] sc:10059  lt:0  rt:0  fl:0 
-
- (all must be [OK])       -- 下面所有业务逻辑结果都必须为 OK 才行
- [transaction percentage]
-        Payment: 43.47% (>=43.0%) [OK]      -- 支付成功次数(上述统计结果中 sc + lt)必须大于43.0%，否则结果为NG，而不是OK
-   Order-Status: 4.35% (>= 4.0%) [OK]       -- 订单状态，其他同上
-       Delivery: 4.35% (>= 4.0%) [OK]       -- 发货，其他同上
-    Stock-Level: 4.35% (>= 4.0%) [OK]       -- 库存，其他同上
- [response time (at least 90% passed)]      -- 响应耗时指标必须超过90%通过才行
-      New-Order: 100.00%  [OK]              -- 下面几个响应耗时指标全部 100% 通过
-        Payment: 100.00%  [OK]
-   Order-Status: 100.00%  [OK]
-       Delivery: 100.00%  [OK]
-    Stock-Level: 100.00%  [OK]
-
-
-                 50294.500 TpmC                      -- TpmC结果值
-注：tpm是transactions per minute的简称；C指TPC中的C基准程序。
-
-
 ###########################################################################################################################
 有一个重大的问题如下：
 
@@ -497,12 +364,6 @@ proxy failed to retrieve default database 这个问题，稍微处理一下
 5、flkcdp >/dev/null 2>&1 
 6、调用 test_load_flkcdp.sh
 
-###########################################################################################################################
-curl 命令 ftp
-
-
-
-
 
 ############################################################################################################################
 1、熟练使用linux系统命令，熟悉Linux系统平台软件开发，具备Linux平台下C/C++/Python程序开发经验；
@@ -512,20 +373,6 @@ curl 命令 ftp
 5、有良好的编码习惯，和编写高性能代码的意识；
 6、具备良好的沟通技巧及团队合作精神，有工作热情，有较好的理解能力和学习能力。
 ############################################################################################################################
-添加打印机
-1、我需要的打印机不在列表中
-2、使用TCP/IP添加
-	192.168.11.10
-###########################################################################################################################
-git tag
-1、git tag -a v1.0.0 -m"2018年上半年release版本v1.0.0"
-2、git push origin v1.0.0
-############################################################################################################################
-
-
-
-
-
 
 
 
@@ -660,102 +507,11 @@ create table t1(id int);
 对嵌入式MySQL执行SQL语句
 1、set @cryptdb='run', @sql='use embedded_db';
 
-
 shPath=$(cd $(dirname $0);pwd)
 echo $shPath
 
-
-
-############################################################################################################################
-性能测试
-1、测试代码
-	#include <stdio.h>
-	#include <sys/time.h>
-	#include <string>
-	#include <map>
-	
-	using std::string;
-	using std::map;
-	#define MAPSIZE 1000000
-	
-	string GetSystemTime()
-	{
-			struct timeval tv;
-			gettimeofday(&tv,NULL);
-			struct tm* pTime;
-			pTime = localtime(&tv.tv_sec);
-	
-			char sTemp[30] = {0};
-			snprintf(sTemp, sizeof(sTemp), "[%04d%02d%02d %02d:%02d:%02d.%06lu]",
-							pTime->tm_year+1900, pTime->tm_mon+1, pTime->tm_mday,
-							pTime->tm_hour, pTime->tm_min, pTime->tm_sec, tv.tv_usec);
-			return (string)sTemp;
-	}
-	
-	void AddItem(map<int,string>& aMap)
-	{
-			for(int i =0; i<MAPSIZE; ++i)
-			{
-					char tmp[64]={0};
-					sprintf(tmp,"%s_%d", "Andy", i);
-					aMap[i] = tmp;
-			}
-			printf("map size[%lu]\n", aMap.size());
-	}
-	
-	int main()
-	{
-			map<int,string> aMap;
-			AddItem(aMap);
-	
-			printf("begin %s\n", GetSystemTime().c_str());
-			for(int i=0; i<MAPSIZE; ++i)
-			{
-					map<int,string>::iterator iter = aMap.find(i);
-			}
-			printf("end   %s\n", GetSystemTime().c_str());
-	
-			return 0;
-	}
-2、对照测试，是否带有调试信息
-	niuzibin@ubuntu:~/work/tmp$ g++ -o main main.cpp -g    
-	niuzibin@ubuntu:~/work/tmp$ readelf -S main |grep debug 
-	[28] .debug_aranges    PROGBITS         0000000000000000  0000414f
-	[29] .debug_info       PROGBITS         0000000000000000  000045ef
-	[30] .debug_abbrev     PROGBITS         0000000000000000  0000a3aa
-	[31] .debug_line       PROGBITS         0000000000000000  0000ab05
-	[32] .debug_str        PROGBITS         0000000000000000  0000b633
-	[33] .debug_ranges     PROGBITS         0000000000000000  00011463
-	niuzibin@ubuntu:~/work/tmp$ ./main
-	map size[1000000]
-	begin [20180802 00:12:05.668542]
-	end   [20180802 00:12:05.939832]
-	
-	niuzibin@ubuntu:~/work/tmp$ g++ -o main main.cpp
-	niuzibin@ubuntu:~/work/tmp$ readelf -S main |grep debug
-	niuzibin@ubuntu:~/work/tmp$ ./main
-	map size[1000000]
-	begin [20180802 00:12:42.144723]
-	end   [20180802 00:12:42.420988]
-3、对照测试，是否带有优化选项
-	niuzibin@ubuntu:~/work/tmp$ g++ -o main main.cpp -O0
-	niuzibin@ubuntu:~/work/tmp$ ./main
-	map size[1000000]
-	begin [20180802 00:14:16.254965]
-	end   [20180802 00:14:16.534845]
-	
-	niuzibin@ubuntu:~/work/tmp$ g++ -o main main.cpp -O3
-	niuzibin@ubuntu:~/work/tmp$ ./main
-	map size[1000000]
-	begin [20180802 00:14:21.340568]
-	end   [20180802 00:14:21.460473]
-4、-g会增加文件的大小，但是对性能影响不大；-O3可以大幅度提高性能。
 ############################################################################################################################
 获取系统时间，精度微秒
-
-
-
-
 
 
 
