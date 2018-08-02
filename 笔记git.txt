@@ -497,10 +497,32 @@ proxy failed to retrieve default database 这个问题，稍微处理一下
 5、flkcdp >/dev/null 2>&1 
 6、调用 test_load_flkcdp.sh
 
-
-
 ###########################################################################################################################
 curl 命令 ftp
+
+
+
+
+
+############################################################################################################################
+1、熟练使用linux系统命令，熟悉Linux系统平台软件开发，具备Linux平台下C/C++/Python程序开发经验；
+2、熟练使用C/C++，熟练掌握数据结构和算法、熟悉STL；
+3、熟悉Mysql等关系型数据库产品，精通SQL语言，有数据库优化经验，优先考虑；
+4、熟悉加密算法，优先考虑；
+5、有良好的编码习惯，和编写高性能代码的意识；
+6、具备良好的沟通技巧及团队合作精神，有工作热情，有较好的理解能力和学习能力。
+############################################################################################################################
+添加打印机
+1、我需要的打印机不在列表中
+2、使用TCP/IP添加
+	192.168.11.10
+###########################################################################################################################
+git tag
+1、git tag -a v1.0.0 -m"2018年上半年release版本v1.0.0"
+2、git push origin v1.0.0
+############################################################################################################################
+
+
 
 
 
@@ -510,7 +532,239 @@ curl 命令 ftp
 
 
 ############################################################################################################################
+create table staff(id int, name enc varchar(64), height enc float, weight enc float, basepay enc float, meritpay enc float, des enc varchar(128));
+insert into staff value(1,"滕海明",178.5,176.25,1000.50,200.35,"I am Frank, hello");
+insert into staff value(2,"陈明",170.5,150.25,900.15,310.45,"我叫陈明, 我来自上海");
+insert into staff value(3,"杨万年",171.5,155.25,984.15,264.45,"我是杨万年，我是安徽人，hello");
+insert into staff value(4,"刘新超",172.25,165.25,635.15,561.45,"大家好，我是刘新超");
+insert into staff value(5,"钟倩",162.5,100.25,844.15,190.45,"我是钟倩，九零后");
+insert into staff value(6,"倪飞",173.25,163.25,987.15,256.45,"我叫倪飞，我是安徽人");
+insert into staff value(7,"牛自宾",175.5,170.25,810.15,315.45,"我是牛自宾，我来自安徽");
 
+create database aaa;
+use aaa;
+create table a1(id int);
+insert into a1 value(1),(2);
+
+drop database aaa;
+create database bbb;
+use bbb;
+create table b1(id int);
+insert into b1 value(1),(2);
+
+
+create database flktest;
+use flktest;
+create table staff(id int, name varchar(64));
+insert into staff value(1,"Andy");
+
+
+W0801 01:04:21.205687  6951 insert_handler.cc:48] [20180801 01:04:21.205687]aaaaa InsertHandler 150
+W0801 01:04:21.205691  6951 Analysis.cc:901] [20180801 01:04:21.205690]aaaaa InsertHandler 151
+W0801 01:04:21.205695  6951 Analysis.cc:915] [20180801 01:04:21.205695]aaaaa InsertHandler 1510
+W0801 01:04:21.205708  6951 Analysis.cc:927] [20180801 01:04:21.205706]aaaaa InsertHandler 1511
+W0801 01:04:21.205713  6951 Analysis.cc:931] [20180801 01:04:21.205711]aaaaa InsertHandler 1512
+W0801 01:04:21.205715  6951 Analysis.cc:903] [20180801 01:04:21.205715]aaaaa InsertHandler 152
+W0801 01:04:21.205724  6951 Analysis.cc:907] [20180801 01:04:21.205723]aaaaa InsertHandler 153
+W0801 01:04:21.205729  6951 insert_handler.cc:56] [20180801 01:04:21.205727]aaaaa InsertHandler 200
+
+
+W0801 01:04:50.933387  6951 insert_handler.cc:48] [20180801 01:04:50.933385]aaaaa InsertHandler 150
+W0801 01:04:50.933389  6951 Analysis.cc:901] [20180801 01:04:50.933389]aaaaa InsertHandler 151
+W0801 01:04:50.933393  6951 Analysis.cc:915] [20180801 01:04:50.933393]aaaaa InsertHandler 1510
+W0801 01:04:50.933403  6951 Analysis.cc:927] [20180801 01:04:50.933403]aaaaa InsertHandler 1511
+W0801 01:04:50.933408  6951 Analysis.cc:931] [20180801 01:04:50.933408]aaaaa InsertHandler 1512
+W0801 01:04:50.933411  6951 Analysis.cc:903] [20180801 01:04:50.933411]aaaaa InsertHandler 152
+W0801 01:04:50.933420  6951 Analysis.cc:907] [20180801 01:04:50.933419]aaaaa InsertHandler 153
+W0801 01:04:50.933423  6951 insert_handler.cc:56] [20180801 01:04:50.933423]aaaaa InsertHandler 200
+
+
+W0801 01:05:07.269625  6951 insert_handler.cc:48] [20180801 01:05:07.269624]aaaaa InsertHandler 150
+W0801 01:05:07.269629  6951 Analysis.cc:901] [20180801 01:05:07.269628]aaaaa InsertHandler 151
+W0801 01:05:07.269634  6951 Analysis.cc:915] [20180801 01:05:07.269633]aaaaa InsertHandler 1510
+W0801 01:05:07.269645  6951 Analysis.cc:927] [20180801 01:05:07.269644]aaaaa InsertHandler 1511
+W0801 01:05:07.269651  6951 Analysis.cc:931] [20180801 01:05:07.269650]aaaaa InsertHandler 1512
+W0801 01:05:07.269654  6951 Analysis.cc:903] [20180801 01:05:07.269653]aaaaa InsertHandler 152
+W0801 01:05:07.269665  6951 Analysis.cc:907] [20180801 01:05:07.269663]aaaaa InsertHandler 153
+W0801 01:05:07.269668  6951 insert_handler.cc:56] [20180801 01:05:07.269667]aaaaa InsertHandler 200
+
+
+W0801 01:21:54.518466  7311 insert_handler.cc:48] [20180801 01:21:54.518465]aaaaa InsertHandler 150
+W0801 01:21:54.518471  7311 Analysis.cc:901] [20180801 01:21:54.518469]aaaaa InsertHandler 151
+W0801 01:21:54.518483  7311 Analysis.cc:903] [20180801 01:21:54.518482]aaaaa InsertHandler 152
+W0801 01:21:54.518492  7311 Analysis.cc:907] [20180801 01:21:54.518492]aaaaa InsertHandler 153
+W0801 01:21:54.518496  7311 insert_handler.cc:56] [20180801 01:21:54.518496]aaaaa InsertHandler 200
+
+
+W0801 01:22:11.590464  7308 insert_handler.cc:48] [20180801 01:22:11.590464]aaaaa InsertHandler 150
+W0801 01:22:11.590468  7308 Analysis.cc:901] [20180801 01:22:11.590467]aaaaa InsertHandler 151
+W0801 01:22:11.590481  7308 Analysis.cc:903] [20180801 01:22:11.590480]aaaaa InsertHandler 152
+W0801 01:22:11.590490  7308 Analysis.cc:907] [20180801 01:22:11.590489]aaaaa InsertHandler 153
+W0801 01:22:11.590493  7308 insert_handler.cc:56] [20180801 01:22:11.590493]aaaaa InsertHandler 200
+
+
+W0801 01:22:25.222702  7308 insert_handler.cc:48] [20180801 01:22:25.222701]aaaaa InsertHandler 150
+W0801 01:22:25.222705  7308 Analysis.cc:901] [20180801 01:22:25.222705]aaaaa InsertHandler 151
+W0801 01:22:25.222718  7308 Analysis.cc:903] [20180801 01:22:25.222718]aaaaa InsertHandler 152
+W0801 01:22:25.222728  7308 Analysis.cc:907] [20180801 01:22:25.222727]aaaaa InsertHandler 153
+W0801 01:22:25.222731  7308 insert_handler.cc:56] [20180801 01:22:25.222730]aaaaa InsertHandler 200
+
+
+方法调用本身的消耗
+map的消耗
+
+
+
+
+############################################################################################################################
+性能测试数据
+1、
+	create database flktest;
+	use flktest;
+	create table staff(id int, name enc varchar(64));
+	insert into staff value(1,"Andy");
+2、目前定位到，rewrite流程：
+	任何一条sql请求，rewrite流程，都会执行两个查询，
+	一个是	SELECT db FROM INFORMATION_SCHEMA.PROCESSLIST  WHERE id = 59; 根据连接线程，向mysql获取当前使用的数据库， 600多微秒
+	另一个是 select stale from generic_prefix_staleness where cache_id=5; 从embedded_db查询，stale值，判断当前内存与embedded_db是否同步，200多微秒	
+	I0724 05:30:57.035692 13388 rewrite_util.cc:838] [20180724 05:30:57.035680]---rewrite--- bbbbb retrieveDefaultDatabase 
+	I0724 05:30:57.035710 13388 rewrite_util.cc:848] [20180724 05:30:57.035709]---rewrite--- bbbbb 111 
+	I0724 05:30:57.036346 13388 rewrite_util.cc:851] [20180724 05:30:57.036342]---rewrite--- bbbbb 112 
+	I0724 05:30:57.036366 13388 rewrite_util.cc:863] [20180724 05:30:57.036365]---rewrite--- bbbbb retrieveDefaultDatabase 
+	【int Proxy::dorewrite】
+	I0724 05:30:57.036384 13388 schema.cc:615] [20180724 05:30:57.036383]---rewrite--- bbbbb lowLevelGetCurrentStaleness 
+	I0724 05:30:57.036751 13388 schema.cc:630] [20180724 05:30:57.036746]---rewrite--- bbbbb lowLevelGetCurrentStaleness
+	【return shared.cache.getSchema(this->getConn(), this->getEConn());】
+3、next流程
+	I0725 03:52:51.331641  9159 Cryptdb_Proxy.cc:959] [20180725 03:52:51.331638]---next--- ccccc begin 
+	I0725 03:52:51.332839  9159 Cryptdb_Proxy.cc:961] [20180725 03:52:51.332833]---next--- ccccc end 
+	I0725 03:52:51.336182  9158 Cryptdb_Proxy.cc:959] [20180725 03:52:51.336173]---next--- ccccc begin 
+	I0725 03:52:51.338012  9158 Cryptdb_Proxy.cc:961] [20180725 03:52:51.338004]---next--- ccccc end 
+	【genericPreamble(nparams);】
+4、什么时候，得到new query
+	在哪里返回的？
+	
+	
+5、Debug信息
+	error.hh
+	
+create database tpcc; 
+use tpcc;
+create table t1(id int);
+	
+	
+	
+
+
+############################################################################################################################
+对嵌入式MySQL执行SQL语句
+1、set @cryptdb='run', @sql='use embedded_db';
+
+
+shPath=$(cd $(dirname $0);pwd)
+echo $shPath
+
+
+
+############################################################################################################################
+性能测试
+1、测试代码
+	#include <stdio.h>
+	#include <sys/time.h>
+	#include <string>
+	#include <map>
+	
+	using std::string;
+	using std::map;
+	#define MAPSIZE 1000000
+	
+	string GetSystemTime()
+	{
+			struct timeval tv;
+			gettimeofday(&tv,NULL);
+			struct tm* pTime;
+			pTime = localtime(&tv.tv_sec);
+	
+			char sTemp[30] = {0};
+			snprintf(sTemp, sizeof(sTemp), "[%04d%02d%02d %02d:%02d:%02d.%06lu]",
+							pTime->tm_year+1900, pTime->tm_mon+1, pTime->tm_mday,
+							pTime->tm_hour, pTime->tm_min, pTime->tm_sec, tv.tv_usec);
+			return (string)sTemp;
+	}
+	
+	void AddItem(map<int,string>& aMap)
+	{
+			for(int i =0; i<MAPSIZE; ++i)
+			{
+					char tmp[64]={0};
+					sprintf(tmp,"%s_%d", "Andy", i);
+					aMap[i] = tmp;
+			}
+			printf("map size[%lu]\n", aMap.size());
+	}
+	
+	int main()
+	{
+			map<int,string> aMap;
+			AddItem(aMap);
+	
+			printf("begin %s\n", GetSystemTime().c_str());
+			for(int i=0; i<MAPSIZE; ++i)
+			{
+					map<int,string>::iterator iter = aMap.find(i);
+			}
+			printf("end   %s\n", GetSystemTime().c_str());
+	
+			return 0;
+	}
+2、对照测试，是否带有调试信息
+	niuzibin@ubuntu:~/work/tmp$ g++ -o main main.cpp -g    
+	niuzibin@ubuntu:~/work/tmp$ readelf -S main |grep debug 
+	[28] .debug_aranges    PROGBITS         0000000000000000  0000414f
+	[29] .debug_info       PROGBITS         0000000000000000  000045ef
+	[30] .debug_abbrev     PROGBITS         0000000000000000  0000a3aa
+	[31] .debug_line       PROGBITS         0000000000000000  0000ab05
+	[32] .debug_str        PROGBITS         0000000000000000  0000b633
+	[33] .debug_ranges     PROGBITS         0000000000000000  00011463
+	niuzibin@ubuntu:~/work/tmp$ ./main
+	map size[1000000]
+	begin [20180802 00:12:05.668542]
+	end   [20180802 00:12:05.939832]
+	
+	niuzibin@ubuntu:~/work/tmp$ g++ -o main main.cpp
+	niuzibin@ubuntu:~/work/tmp$ readelf -S main |grep debug
+	niuzibin@ubuntu:~/work/tmp$ ./main
+	map size[1000000]
+	begin [20180802 00:12:42.144723]
+	end   [20180802 00:12:42.420988]
+3、对照测试，是否带有优化选项
+	niuzibin@ubuntu:~/work/tmp$ g++ -o main main.cpp -O0
+	niuzibin@ubuntu:~/work/tmp$ ./main
+	map size[1000000]
+	begin [20180802 00:14:16.254965]
+	end   [20180802 00:14:16.534845]
+	
+	niuzibin@ubuntu:~/work/tmp$ g++ -o main main.cpp -O3
+	niuzibin@ubuntu:~/work/tmp$ ./main
+	map size[1000000]
+	begin [20180802 00:14:21.340568]
+	end   [20180802 00:14:21.460473]
+4、-g会增加文件的大小，但是对性能影响不大；-O3可以大幅度提高性能。
+############################################################################################################################
+获取系统时间，精度微秒
+
+
+
+
+
+
+
+
+############################################################################################################################
+find ../ -iname "*.so" |xargs ls -thl
+
+
+grep "O3" ./ -Rn
 
 
 
