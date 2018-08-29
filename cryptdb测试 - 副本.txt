@@ -1,0 +1,21 @@
+###########################################################################################################################
+ope join
+create database yytest;
+use yytest;
+
+
+create table grade1(id enc int, name enc varchar(64), chn enc int not null, `math` enc int);
+insert into grade1(id,name,chn,math) value(1,"Andy", 70,75),(2,"Bill", 75,74),(3,"Caroline", 80,78),(4,"David", 85,90);
+
+select * from grade1 where chn>math;
+
+
+
+
+
+
+
+
+
+
+###########################################################################################################################
