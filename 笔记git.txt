@@ -519,21 +519,9 @@ W0802 01:38:19.989336 14733 Cryptdb_Proxy.cc:381] [20180802 01:38:19.989307]aaaa
 create database tpcc; 
 use tpcc;
 create table t1(id int);
-	
-	
-	
-
-
-############################################################################################################################
-对嵌入式MySQL执行SQL语句
-1、set @cryptdb='run', @sql='use embedded_db';
-
-shPath=$(cd $(dirname $0);pwd)
-echo $shPath
 
 ############################################################################################################################
 获取系统时间，精度微秒
-
 
 
 
@@ -544,44 +532,6 @@ find ../ -iname "*.so" |xargs ls -thl
 grep "O3" ./ -Rn
 
 ############################################################################################################################
-sql-bench
-1、安装DBI
-	cpan
-	install DBI
-	install DBD::mysql
-2、找到下载的DBD-mysql，sudo find / -iname "DBD-mysql*"
-	进入对应的目录，解压DBD-mysql
-	perl Makefile.PL -testuser=root -testpassword="letmein"
-	make install 
-	如果报错：Cannot find the file 'mysql_config'
-	执行 sudo apt-get install libmysqlclient-dev	
-2、转到 mysql-src/sql-bench
-	./run-all-tests.sh --server=mysql --host=127.0.0.1 --user=root --password=letmein
-	./test-select.sh --server=mysql --host=127.0.0.1 --user=root --password=letmein
-	./test-connect.sh --server=mysql --host=127.0.0.1 --user=root --password=letmein --connect-options=mysql_read_default_file=./my.cnf
-3、Benchmark
-	/usr/share/perl/5.18/Benchmark.pm
-############################################################################################################################
-create database flktest;
-use flktest;
-create table staff(id enc int, name enc varchar(64));
-insert into staff value(1,"Andy"), (2,"Bill");
-
-:
-我们之前面试的 走到刘燕那一步的 有名单么
-我:
-没有哎
-:
-武俊龙 余文正 李友 施杰 邱怀宇 齐轲 洪扬 艾涛 杨智辉 朱能峰
-:
-余文正 洪扬 艾涛
-我:
-嗯，应该就是这些。
-:
-今天面试这两个 杨智辉 朱能峰 还不知道情况
-
-############################################################################################################################
-
 
 select sql_no_cache idn+rev_idn from bench1 where idn=5;
 
@@ -689,32 +639,6 @@ W0809 23:55:24.699802 19130 Cryptdb_Proxy.cc:449] [20180809 23:55:24.699799]aaaa
 W0809 23:55:24.701290 19130 Cryptdb_Proxy.cc:447] [20180809 23:55:24.701284]aaaaa 300
 W0809 23:55:24.701552 19130 Cryptdb_Proxy.cc:449] [20180809 23:55:24.701548]aaaaa 400
 
-
-############################################################################################################################
-站在领导的角度，看看自己做了什么工作
-1. 熟悉并使用perl语言实现的性能测试工具sql-bench，进行select语句的基准测试，对照mysql和flkcdp
-2. select性能问题，进行优化后，目前flkcdp一次select相对于mysql多消耗500微秒，这500毫秒主要包括：
-   增加一层代理的网络开销，改写sql语句的开销，处理select结果的开销，代码层面可以优化的空间已经比较小。
-   因此相对于mysql的性能，取决于这固定的500微秒在整个select流程的比重，在mysql没有开启查询缓存，性能达到mysql的40%左右，一旦mysql开启查询缓存，性能相差非常大。
-   初步的解决思路是，在配置文件增加选项，处理流程中，对于重复出现的数据进行缓存，在命中率很高的情况下，大大提高性能。
-3. 给出加解密算法对于性能影响的分析，目前HOM（同态加减乘除）加解密耗时300微秒，OPE（同态大小比较）加解密，明文数字小耗时300微秒，当加密的数字很大，性能严重下降，
-   DET（同态相等）不构成瓶颈，因此对于select，查询回来的记录，解密开销成为瓶颈。特别是查询回来的记录个数很多，全部解密，性能严重下降。
-   目前加解密的算法开销，比较难优化，除非牺牲一定的安全性。初步的解决思路也是，进行缓存，缓存明文密文的映射关系。
-4. 对接了销帮帮，了解到其使用的Elasticsearch技术，并进行了预研，和我们的使用场景差别比较大，还需要进一步和销帮帮沟通，最后确认初步的方案。
-5. 解决JDBC代码覆盖率的问题，并整理出来issue
-6. FLKCDP进行了流程优化，JDBC的代码进行接口调整修改
-7. 新入职和转入员工的环境搭建和熟悉。
-############################################################################################################################
-void GetSystemTime(timeval& tv)
-{
-    gettimeofday(&tv,NULL);
-}
-
-double SubSystemTime(const timeval& begin, const timeval& end)
-{
-    return (end.tv_sec - begin.tv_sec) + (double)(end.tv_usec - begin.tv_usec)/(1000000.0);
-}
-
 ############################################################################################################################
 1、基准测试，需要测试的情况
 	a、计算一下void   GetSystemTime(timeval& tv); 本身的耗时，本身耗时 0.17微秒，因此可以忽略不计
@@ -728,8 +652,7 @@ static int next    54微秒
     static int count = 0;
     static int sum = 0;
     timeval begin;
-    FLKCDP::GetSystemTime(begin);
-    timeval end;
+    FLKCDP::GetSystemTime(begin);    
     */
 
     ANON_REGION(__func__, &perf_cg);
@@ -741,11 +664,12 @@ static int next    54微秒
     int ret = nextObj.donext(client, res);
 
     /*
+	timeval end;
     FLKCDP::GetSystemTime(end);
     sum += FLKCDP::SubSystemTime(begin,end);
     if(count%10000 == 0)
     {
-        LOG(WARNING)<<"rewrite time["<< sum <<"]";
+        LOG(WARNING)<<"xxx time["<< sum <<"] count["<< count <<"]";
         sum = 0;
     }
     ++count;
@@ -760,6 +684,8 @@ for(int i =0; i<10000; ++i)
 timeval end;
 FLKCDP::GetSystemTime(end);
 LOG(WARNING)<<"Rewriter::rewrite["<< FLKCDP::SubSystemTime(begin,end) <<"]";
+
+
 
 ############################################################################################################################
 优化的处理
@@ -858,29 +784,6 @@ JDBC绑定变量
 1、需要设置 useServerPrepStmts=true&cachePrepStmts=true
 
 
-
-############################################################################################################################
-理解协程
-1、考虑下面的需求，一个任务分为3个步骤来做，每个步骤会分配一个线程来处理，这个线程是根据调度算法从线程池中分配出来的。
-2、在工作中的两个项目中都碰到这个问题。第一个项目的解决方案是，任务移动，基于Msg，这个消息是包含任务的具体内容。
-	先把任务push给线程A，当这个线程处理完毕，然后push给线程B，然后push给线程C
-3、第二个项目的解决方案是，使用协程，任务不动，分为3个步骤，进来一个线程处理第一步，再来一个线程处理第二步，再来另外一个线程处理第三步。
-	每次做完一个步骤，交出控制权。
-4、协程是怎么做到每个线程做一个步骤的？
-	可以简单理解为 switch case，每次switch进入case之后，对象的字段值加1，下一次进来，就会从下一个case继续执行。	
-
-
-查询语句的流程和时间消耗
-1、SQL语句--->lex-->拷贝lex为newlex-->遍历newlex的属性，然后修改-->
-
-
-############################################################################################################################
-extern
-1、extern置于变量或者函数前，表示变量或者函数的定义在别的文件中。
-	编译的时候，能够正常使用，可理解为占位符，但是链接的时候，会尝试从其它模块中寻找其定义。
-2、如果使用extern，但是又定义了，比如extern int a = 5; 编译会有告警，这个时候的效果，就是定义。
-3、一个源文件中的全局对象，编译成模块后，都会暴露出来，其它模块在链接的时候，可以定位到。
-	如果我不想让其它模块链接，怎么办？ 使用static修饰，表示内部链接性，不暴露出来。	
 ############################################################################################################################
 代码逻辑的测试
 1、
@@ -891,7 +794,6 @@ create table teacher(id enc int, name enc varchar(64));
 insert into teacher(id, name) value(1,"Mr Li"),(2,"Ms Wang"),(3,"Mr Zhang"),(4,"Mr He");
 create table grade(id enc int, name enc varchar(64), stuid enc int, teaid enc int, score enc int);
 insert into grade(id,name,stuid,teaid,score) value(1,"Math",1,2,85),(2,"Math",2,2,86),(3,"Math",3,2,87),(4,"Math",4,2,88),(5,"Math",5,2,89),(6,"Math",6,2,90);
-
 
 
 select * from student;
@@ -905,6 +807,9 @@ select student.name, G.score from student inner join grade as G on student.id = 
 
 
 select * from (select * from student where id >1) as S where S.name="Bill";
+
+
+select student.name, grade.name from student,grade where student.id = grade.stuid;
 
 
 
@@ -934,11 +839,7 @@ select student.name, grade.name from student,grade where student.id = grade.stui
 
 
 
-
-
-
 select * from student order by id desc;
-
 
 
 select student.name, G.score from student inner join grade as G on student.id = G.stuid;
@@ -958,27 +859,48 @@ insert into grade(id,name,stuid,teaid,score) value(1,"Math",1,2,85),(2,"Math",2,
 
 
 
+
+
 ############################################################################################################################
-类模板和模板类，实例化，特化
-1、类模板，重心是模板，模板有类的模板和方法的模板。
-2、模板类，重心是类，是一种特殊的类，根据类的模板，实例化出来的一种类。
-3、什么是实例化？
-	根据类模板，指定模板参数，产生一个类，就是实例化。
-4、什么是特化？
-	考虑解决什么问题？有了模板，指定模板参数，就能产生对应的模板类或者模板方法，这带来一个问题，实例化出来的，行为都是一致的。
-	有时候这不是我们预期的，我们会有这种需求，对于大部分类型，我们期望产生这样的实例化，但是对于某种特殊的类型，我们期望使用另一种实例化。
-	比方说，方法模板，求两个对象的最大值，调用>操作，对于数值类型（int、float）实例化出来是OK的，但是对于string，实例化出来的结果，不是我们所预期的。
-	对于string，求最大值，我们期望是忽略大小写，逐个字符比较。因此，对于这种情况，我们期望有一个特殊的模板，这就是原来模板的特化。
-	特化也就是说，一个模板对付大多数类型的实例化，但是对于某个特殊的类型，单独构造一个模板，用于实例化这个特殊的类型。
-5、特化分为全特化和偏特化，模板往往有多个参数，所有的参数都限定死，就是全特化。部分参数限定死，就是偏特化。
-	判断是不是模板的关键是看，是否还存在不确定的模板参数。偏特化还是模板，全特化已经不是模板了。
-	全特化的作用是，优先匹配某种特殊的类型，防止使用默认的模板来实例化。
+如何做汇报
+1、做给谁看，想表达什么？
+2、
+
+
+
+
+
 ############################################################################################################################
-1、CItemType是个普通类
-2、CItemSubtype继承CItemType，是个类的模板，模板参数是 do_gather_type(static_cast<const T &>(i), a); 
-3、CItemSubtypeFT是
-   
-   
+
+https://wenku.baidu.com/view/452a5a87a0c7aa00b52acfc789eb172ded6399cc.html?sxts=1535936565857###&nu_token=
+
+
+
+
+
+############################################################################################################################
+
+select count(1) from customer;select count(1) from district;select count(1) from history;select count(1) from item;select count(1) from new_order;select count(1) from order;select count(1) from order_line;select count(1) from stock;select count(1) from warehouse;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
