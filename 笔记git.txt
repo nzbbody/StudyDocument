@@ -279,6 +279,9 @@ OPE::search(CB go_low)
 ###########################################################################################################################
 su与sudo的再次理解
 
+加上
+
+
 
 
 ###########################################################################################################################
@@ -564,18 +567,6 @@ primary key a (region,idn),unique b (region,rev_idn),unique c (region,grp,idn)
 );
 
 insert into bench1 value('A',100,200,300);
-
-
-
-
-告诉万年，没有执行 mysql_thread_end();
-            //*****************************************
-
-            ResType res(true, 0, 0);
-            return donext(client, res);
-
-
-
 
 
 
@@ -887,6 +878,115 @@ select count(1) from customer;select count(1) from district;select count(1) from
 
 
 
+############################################################################################################################
+做给谁看？想表达什么？
+假如我是销帮帮的负责人，我期望得到什么？
+1、同步明文过去，不能满足数据安全的需求
+2、同步密文过去，支持的功能会非常受限，不能满足用户的功能需求
+############################################################################################################################
+1、密钥的导入导出工具
+2、对接kms对masterkey的加解密
+3、安全编码规范和检测工具的预研报告
+4、FLKCDP的License功能和OPE JOIN功能
+5、性能测试，使用了BenchmarkSQL和sql-bench
+6、性能优化，优化和MySQL、Embedded_db的交互，增加SQL语句的缓存
+############################################################################################################################
+1、快速学习新的知识点和技能，包括cmake、lua脚本、Modern C++、git版本控制、密码学等，并在项目中熟练使用，并且帮助新员工
+2、合理制定数据库加密项目的迭代开发计划，有效管控开发过程中的进度和质量
+############################################################################################################################
+1、4月份，输出密钥管理的文档，并组内分享
+2、5月份，输出安全编码规范和检测工具的预研报告，给出我们项目应用的解决方案，并开发出秘钥导入导出的工具，完成kms对masterkey的加解密功能
+3、6月份，在FLKCDP增加功能，完成License功能，OPE JOIN的功能，字符串单目函数的功能
+4、7月份，增加FLKCDP支持的SQL，支持率达70%，并使用BenchmarkSQL工具输出性能测试报告
+5、8月份，优化FLKCDP的性能，优化掉交互的流程，以及增加SQL语句的缓存，优化后达到cryptdb论文的指标
+6、9月份，输出总的流程分析报告和优化点，并输出性能优化报告
+
+
+############################################################################################################################
+具体而言，存在以下问题 ：
+[0008] 1、性能问题 ：一般应用中往往采用客户端数据解密的方式，将加密后的数据从数
+据库取出后进行处理，严重影响数据库访问的性能，在数据记录比较大的情况下，基本不能
+使用 ；
+[0009] 2、不能进行全文检索 ：由于数据库存放密文，一般采用将密文取出解密后再进行
+全文检索，效率比数据库系统直接检索慢，对系统的开销也很大 ；
+[0010] 3、不同的用户不能共享 ：由于数据采用了用户专用的密钥进行加密，在数据需要
+共享的场合，则对数据不能加密 ；
+[0011] 4、对字段加密不能设置 ：对数据库字段的加密与否不能灵活选择，导致数据加密
+性能问题严重 ；
+[0012] 5、应用系统访问数据库不透明 ：应用系统需要对数据进行加密和解密的操作，不
+透明
+
+############################################################################################################################
+专利的测试数据
+create database test1;
+create table staff(id int, name enc varchar(64), salary enc float);
+
+
+create table staff 
+(
+id INT(11), 
+nameoEQ VARBINARY(80), nameoORDER BIGINT(64) unsigned, nameoSWP BLOB, 
+salaryoEQ BIGINT unsigned, salaryoORDER BIGINT unsigned, salaryoADD VARBINARY(1024)
+)
+
+
+select sum(`test1`.`staff`.`salaryoADD`) from `test1`.`staff`
+
+
+############################################################################################################################
+人力丁咨询问题：
+体验了一下你们的产品，有些问题，再请教，确认一下：
+1、服务端会有解密的需求吗？作为独立的第三方加密，原则上我们不提供服务端解密，否则失去用户的信任。 
+2、涉及到过滤，运算的情况，你们目前的处理逻辑都是，从服务端取回密文数据，在客户端解密，然后再对明文过滤，运算，呈现结果的吗？
+
+
+那目前来说，做了服务端的存储安全，网络传输是明文，不安全的。
+那按照我的理解，你们的需求是端到端加密，但我们不提供服务端的解密。
+这样的话，应该是客户端调用sdk，采用同态加解密的方式，实现网络传输安全，服务端直接对密文运算，运算结果返回给客户端解密。
+
+
+############################################################################################################################
+咱要和人力丁确认：
+1、强制的要求是：端到端加密，服务端要求解密。
+2、有一种办法，提供服务端密文运算的功能。有比较大的工作量：
+	提供同态加密的sdk，各种版本（安卓、苹果、js、H5），我们目前只有C++的，而且需要从代码中提取。
+	人力丁也需要调用相应的SDK
+	
+	
+采用同态加密，提供sdk的方式。我们这边和你们那边都需要比较大的改动：
+我们这边需要提供多个版本的同态加密sdk（安卓、苹果、js等），你们那边的客户端需要根据涉及的运算，调用对应的同态加密算法。
+我们这边评估一下。	
+############################################################################################################################
+kms的流程
+1、kms服务发送公钥给sdk，通过证书的方式。（或者公钥嵌入到sdk中）
+2、sdk向kms请求对称密钥，kms根据企业ID等信息生成对称密钥，对称密钥本身需要加密传输。
+	因此，sdk发送的信息包括企业ID，随机数（会话密钥加密对称密钥），这些信息需要使用公钥加密发送请求。
+	回复的对称密钥，使用会话密钥加密。
+3、sdk使用会话密钥，解密得到对称密钥，对真正的数据加密。考虑到对称密钥不会频繁变动，再产生一个加密数据的密钥，这个密钥由对称密钥加密生成。
+	数据密钥可以经常变动，并且和数据保存在一起。
+4、现在存在一个问题，任何用户都能从kms获取对称密钥，需要token认证。sdk首先登陆token服务器获取token，向kms获取对称密钥的时候，带着token
+	然后kms向token服务器检查token，这个token服务器也可以是用户saas服务。类似之前的cmu、dmu、dmusdk。dmu会向cmu检查用户的token。
+############################################################################################################################
+端到端的同态加密，我们需要做哪些事情？
+1、与kms对接，这个对接应该没有什么问题。
+2、涉及到密文同态运算的，密钥要相同。否则数据没法进行同态运算。
+3、要不要涉及加密数据的密钥，也放到数据库中？
+4、多个版本（安卓、苹果、js【pc端的H5】）的同态加密SDK，工作量多大？
+5、数据库要根据加密后的数据类型、以及要支持的同态运算，扩展字段。
+6、数据库还需要注册UDF。
+############################################################################################################################
+1、192.168.10.71上面的测试环境搭建好了，测试的数据规模，就是benchmark原始的数据规模，一共60万记录
+2、脚本
+	/home/flk/source_code/eval-flkcdp/BenchmarkSQL-2.3.3/run/load_enc_no/test_load_mysql.sh 测试mysql的insert性能
+	/home/flk/source_code/eval-flkcdp/BenchmarkSQL-2.3.3/run/load_enc/test_load_enc_int_one.sh 测试flkcdp的insert性能
+	/home/flk/source_code/eval-flkcdp/BenchmarkSQL-2.3.3/run/tpmc_enc_no/tpmc_enc_no_mysql.sh 测试mysql的tpmc性能
+	/home/flk/source_code/eval-flkcdp/BenchmarkSQL-2.3.3/run/tpmc_enc/tpmc_enc_int_one.sh 测试flkcdp的tpmc性能
+	测试tpmc，不能在终端测试，需要在主机上测试。
+	
+	
+	
+	
+	
 
 
 
@@ -896,13 +996,385 @@ select count(1) from customer;select count(1) from district;select count(1) from
 
 
 
+############################################################################################################################
+测试分词长度大于16的情况
+create database yytest;
+use yytest;
+create table staff(id int, name enc varchar(64));
+insert into staff value(1, "012345678912345");
+
+insert into staff value(1, "01234567890123456789012345678901");
+
+insert into staff value(1, "012345678901234567890123456789012345678901234567");
+
+insert into staff value(1, "8wqwyHWT/ieMOow3iL1ZNktlj2JLGHTmcfzA5KPP9o1BO9VQyfoEwQGGrSnsCh5WJbMco5y8RQcxVK6K2gzv4pVuWRBaSxs1QcueRAFlBmI");
+
+'8wqwyHWT/ieMOow3iL1ZNktlj2JLGHTmcfzA5KPP9o1BO9VQyfoEwQGGrSnsCh5WJbMco5y8RQcxVK6K2gzv4pVuWRBaSxs1QcueRAFlBmI'
+
+############################################################################################################################
+1、FLKCDP流程梳理，输出性能瓶颈和性能优化方案。
+2、FLKCDP性能优化，主要包括流程上的优化、加解密算法的优化，查询缓存的优化。
+3、数据库管理后台，使用jdbc替换掉porxy
+4、FLKJDBC提供SDK的方式和说明文档
+5、持续集成增加FLKJDBC的测试用例
+############################################################################################################################
+------------- LoadJDBC Statistics --------------------
+     Start Time = Thu Sep 27 14:49:10 CST 2018
+       End Time = Thu Sep 27 15:56:14 CST 2018
+       Run Time = 4024403 Milliseconds
+    Rows Loaded = 598328 Rows
+Rows Per Second = 148 Rows/Sec
+------------------------------------------------------
+
+VNC的端口
+192.168.10.244:5913
+
+全部加密，tpmc流程会有大量失败，导致rollback，因为tpmc模拟订单系统，
+############################################################################################################################
+v1.1.0 2018年9月底release版本v1.0.0
+
+git tag -a v1.1.0 -m"2018年9月底release版本v1.1.0"
+git push origin v1.1.0
+
+############################################################################################################################
+10月份的计划
+1、FLKCDP功能的完善
+	DDL操作多线程问题的修改
+	嵌套SQL语句的支持
+	多目函数功能的支持
+	密文之间乘除同态运算的支持
+2、FLKJDBC
+	FLKJDBC分布式部署的应用
+3、数据库管理后台
+	密钥导入导出备份的功能
+	JDBC增加测试用例
+4、数据库加密应用到内部项目
+	数据库加密应用到内部的订单系统，测试验证，输出问题
+	数据库加密应用到内部的云密盾系统，测试验证，输出问题
+	解决出现的问题
+	输出报告	
+5、数据库加密有关专利
+	SQL语句改写优化策略，输出一篇专利
+############################################################################################################################
+
+curl -u uftp:hzflk1234 -T $DEBNAME  ftp://192.168.10.70/flksoft/release/
+
+curl -u uftp:hzflk1234 ftp://192.168.10.70/flksoft/release/FLK_JDBC_SDK_v1.1.0.tar.gz -O
+
+
+
+
+############################################################################################################################
+一， 设置DEBUG编译选项
+find . -name Makefile.am -exec sed -i '1i\CFLAGS=-g' '{}' \;
+find . -name Makefile.am -exec head -1 '{}' \;
+
+二， 编译
+./autogen.sh
+./configure --enable-maintainer-mode --with-lua=lua5.1 --prefix=/home/niuzibin/work/FLKDBEnc/FLKCDP/bins/proxy-bin
+grep -R -n "\\-O2" .
+make & make install
+############################################################################################################################
+CLion调试报错
+1、CLion调试报错如下：
+	network-mysqld-lua.c:234: lua_load_file(/home/niuzibin/work/FLKDBEnc/FLKCDP/bins/proxy-bin/$EDBDIR/bin/wrapper.lua) failed
+2、错误原因是：
+	没有选中Debug按钮，而是选中了Run按钮。选中Run还有一个特点，就是断点不起作用。
+############################################################################################################################
+增加功能，最大分词长度可以配置。
 
 
 
 
 
+############################################################################################################################
+create table staff(id enc int, name enc varchar(64));
+
+insert into staff value(1, "012345678912345");
+
+select * from student where teacherid = (select id from teacher where name = "Mr Li");
+
+update staff set salary = salary+100;
+下面的update也是不行的，update staff set salary = 100; 这样可以，分别调用洋葱加密，
+但是 update staff set salary = 100; 不行，没有办法改写。因为DET、OPE、HOM只有HOM具备加法同态。
 
 
+create table staff(id enc int, name enc varchar(64), salary enc float);
+insert into staff value (1, "Andy",100.00), (2, "Bill",200.00),(3, "Caroline",300.00);
+
+############################################################################################################################
+flkcdp insert一次耗时 1398微秒
+mysql  insert一次耗时 270微秒
+多消耗 1398-270 = 1128，而日志打印，多消耗942微秒
+
+
+flkcdp select一次耗时 16949微秒
+mysql  select一次耗时  8695微秒
+多消耗 16949-8695 = 8254，而日志打印，多消耗500微秒
+
+1000/27 - 1000/35 = 8466
+
+1000/32 - 1000/48 = 10417
+############################################################################################################################
+
+mysql-proxy --plugins=proxy --event-threads=4 --max-open-files=1024 --proxy-address=0.0.0.0:3307 --proxy-backend-addresses=127.0.0.1:3306
+
+
+############################################################################################################################
+配置文件在本地，edb.so放到远程mysql，暂时不支持配置分词的最大长度，目前写死1024
+
+
+
+############################################################################################################################
+update staff  set salary = salary+100;
+select sum(price) as total from orders group by order_id having total > 100;
+
+select floor(salary) from staff;
+update staff  set salary = salary+100;
+
+select * from staff where salary>100;
+
+select * from student where teacherid = (select id from teacher where name = "Mr Wang");
+
+############################################################################################################################
+假设只有5门课程，查询总分大于500的，select name from student group by name having sum(grade)>500;
+特殊过滤的思路是，过滤掉不可能的记录。总分大于500，最高分必须大于100，或者说存在一行，大于100
+可以改写为，select name, paillier_sum(grade) from student group by name having max(grade)>100;
+同时把聚合结果取回到本地，进行本地过滤。
+############################################################################################################################
+
+
+SBT_OPTS="-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M"
+java $SBT_OPTS -jar /home/niuzibin/work/apps/sbt/bin/sbt-launch.jar "$@"
+
+############################################################################################################################
+把代码搞上去
+
+
+
+############################################################################################################################
+actor模型
+
+
+
+############################################################################################################################
+scala
+
+
+
+############################################################################################################################
+libraryDependencies ++= Seq(
+  "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
+  "org.specs2" %% "specs2" % "2.4.17" % "test",
+  "net.liftweb" %% "lift-json" % "3.0.1"
+)
+############################################################################################################################
+嵌套SQL语句的测试
+create database yytest;
+use yytest;
+create table student(id enc int,name enc varchar(64));
+insert into student value(1,"Andy"),(1,"Bill"),(3,"Caroline"),(4,"David");
+create table teacher(id enc int,name enc varchar(64));
+insert into teacher value(1,"Mr Zhang"),(2,"Mrs Wang"),(3,"Mr Li"),(4,"Mrs Zhao");
+create table cource(id enc int,name enc varchar(64));
+insert into cource value(1,"Chinese"),(2,"English"),(3,"Math"),(4,"Physics");
+create table student_teacher_cource(studentId enc int, teacherId enc int, courseId enc int);
+insert into student_teacher_cource value(1,2,1),(2,2,3),(3,2,2),(4,2,3);
+
+select * from student;
+select * from student where id = (select studentId from student_teacher_cource where courseId=1);
+
+
+select * from student where id = (select id from student where id=1);
+
+select * from student where id = (select id from student where id=(select id from student where id=1));
+
+
+select `yytest`.`student_teacher_cource`.`studentIdoEQ` from `yytest`.`student_teacher_cource` where (`yytest`.`student_teacher_cource`.`courseIdoEQ` = 16618621350731960634);
+
+select `yytest`.`student`.`idoEQ`,`yytest`.`student`.`nameoEQ` from `yytest`.`student` where (`yytest`.`student`.`idoEQ` = 16618621350731960634);
+
+############################################################################################################################
+select name from staff where salary > 5000;
+select sum(salary) from staff;
+
+select department, sum(salary) as department_total_salary from staff group by department having department_total_salary>100000;
+
+
+
+select department, sum(salary) as department_total_salary from staff group by department having department_total_salary>
+(select sum(salary) from staff where department='B') order by department_total_salary;
+
+SELECT PAILLIER_SUM(price_paillier) AS total
+FROM orders
+GROUP BY order_id_det
+
+
+create table staff(id int, name varchar(64), salary float, department varchar(64));
+insert into staff value(1,"Andy",1200,"A"),(2,"Bill",1200,"B"),(3,"Caroline",2500,"A"),(4,"David",1200,"B");
+
+insert into staff value(5,"Eric",1200,"c"),(6,"Frank",6700,"c"),(7,"Green",2500,"D"),(8,"Hill",1300,"D");
+
+
+
+create table staff(id int, name varchar(64),salary float, department varchar(64),subcompany varchar(64));
+insert into staff value(1,  "Andy",     12000.00,  "R&D department",      	"Hangzhou Branch");
+insert into staff value(2,  "Bill",     13000.00,  "R&D department",      	"Hangzhou Branch");
+insert into staff value(3,  "Caroline", 11000.00,  "Business department", 	"Hangzhou Branch");
+insert into staff value(4,  "David",    14000.00,  "Business department", 	"Hangzhou Branch");
+insert into staff value(5,  "Eric",     16000.00,  "Management department", "Hangzhou Branch");
+insert into staff value(6,  "Frank",    15000.00,  "Management department", "Hangzhou Branch");
+insert into staff value(7,  "Gavin",    17000.00,  "Financial department",  "Hangzhou Branch");
+insert into staff value(8,  "Hill",     19000.00,  "Financial department",  "Hangzhou Branch");
+insert into staff value(9,  "Ivan",     12000.00,  "R&D department",        "Beijing Branch");
+insert into staff value(10, "Jack",     11000.00,  "R&D department",        "Beijing Branch");
+insert into staff value(11, "Kent",     13000.00,  "R&D department",        "Beijing Branch");
+insert into staff value(12, "Leo",      15000.00,  "R&D department",        "Beijing Branch");
+
+
+
+select department, sum(salary) as department_total 
+from staff 
+where 
+subcompany='杭州分公司' 
+group by department 
+having department_total>
+(
+	select sum(salary) from staff where subcompany='杭州分公司' and department='市场部门'
+) 
+order by department_total desc;
+
+
+select sum(salaryoADD) from staff where 
+
+subcompanyoDET=DET_ENC('杭州分公司') 
+
+
+
+select department, sum(salary) as department_total from staff where subcompany='杭州分公司' group by department 
+
+
+
+
+select department, sum(salary) as department_total from staff 
+where 
+subcompany='杭州分公司' 
+group by department 
+having department_total>
+(
+select sum(salary) from staff where subcompany='杭州分公司' and department='市场部门'
+) 
+order by department_total desc;
+
+
+subcompanyoDET='xxx' and departmentoDET='xxx'
+
+
+select sum(salary) from staff where subcompany='Hangzhou Branch' and department='Business department'
+
+############################################################################################################################
+create table staff(id enc int, name enc varchar(64), salary enc float, department enc varchar(64),subcompany enc varchar(64));
+insert into staff value(1,  "Andy",     12000.00,  "R&D department",      	"Hangzhou Branch");
+insert into staff value(2,  "Bill",     13000.00,  "R&D department",      	"Hangzhou Branch");
+insert into staff value(3,  "Caroline", 11000.00,  "Business department", 	"Hangzhou Branch");
+insert into staff value(4,  "David",    14000.00,  "Business department", 	"Hangzhou Branch");
+insert into staff value(5,  "Eric",     16000.00,  "Management department", "Hangzhou Branch");
+insert into staff value(6,  "Frank",    15000.00,  "Management department", "Hangzhou Branch");
+insert into staff value(7,  "Gavin",    17000.00,  "Financial department",  "Hangzhou Branch");
+insert into staff value(8,  "Hill",     19000.00,  "Financial department",  "Hangzhou Branch");
+insert into staff value(9,  "Ivan",     12000.00,  "R&D department",        "Beijing Branch");
+insert into staff value(10, "Jack",     11000.00,  "R&D department",        "Beijing Branch");
+insert into staff value(11, "Kent",     13000.00,  "R&D department",        "Beijing Branch");
+insert into staff value(12, "Leo",      15000.00,  "R&D department",        "Beijing Branch");
+
+
+select sum(salary) from staff where subcompany='Hangzhou Branch' and department='Business department';
+
+
+select department, sum(salary) as department_total 
+from staff 
+where 
+subcompany='Hangzhou Branch' 
+group by department 
+having department_total>
+(
+	select sum(salary) from staff where subcompany='Hangzhou Branch' and department='Business department'
+) 
+order by department_total desc;
+
+
+select cryptdb_agg(`yytest`.`staff`.`salaryoADD`,'....:.z.P#|..!.9 Z%{..!U...D..n.....q.\\X..z.t..Q.B9...]..vo.).:{.B..0.#J.       q+..cM....MR....U@.z..O.....r.....b....^... .n.A..T<..') from `yytest`.`staff` where ((`yytest`.`staff`.`subcompanyoEQ` = '.N..q=d..       4\rO...') and (`yytest`.`staff`.`departmentoEQ` = '2...L.].1.>.d._.b.1....G...sKi.T'))
+
+
+subcompanyoDET = '.N..q=d..       4\rO...' and departmentoDET = '2...L.].1.>.d._.b.1....G...sKi.T'
+
+
+select sum(salaryoADD) from staff where subcompanyoEQ = '.N..q=d..       4\rO...' and departmentoEQ = '2...L.].1.>.d._.b.1....G...sKi.T';
+
+
+select department, sum(salary) as department_total from staff where subcompany='Hangzhou Branch' group by department;
+
+
+select departmentoEQ, sum(salaryoADD) from staff where subcompanyoEQ = '.N..q=d..     4\rO...' group by departmentoEQ
+############################################################################################################################
+select nameoEQ from staff where salaryoORDER > 6291927251322894654;
+
+select sum(salaryoADD) from staff;
+
+select name from staff where salary = (select salary ...);
+
+select name from staff where salary = (select sum(salary) ...);
+
+create table staff(id int, name varchar(64),salary float, department varchar(64),subcompany varchar(64),primary key(id));
+
+############################################################################################################################
+select a1 from t1 where a1 = 
+(
+	select max(b1) from t2 where b1 > 
+	(
+		select sum(c1) from t3 where c1 = const;
+	)
+)
+############################################################################################################################
+同步、异步、阻塞、非阻塞、select、poll、epoll
+
+https://www.zhihu.com/question/19732473
+
+
+老张爱喝茶，废话不说，煮开水。出场人物：老张，水壶两把（普通水壶，简称水壶；会响的水壶，简称响水壶）。1 老张把水壶放到火上，立等水开。（同步阻塞）老张觉得自己有点傻2 老张把水壶放到火上，去客厅看电视，时不时去厨房看看水开没有。（同步非阻塞）老张还是觉得自己有点傻，于是变高端了，买了把会响笛的那种水壶。水开之后，能大声发出嘀~~~~的噪音。3 老张把响水壶放到火上，立等水开。（异步阻塞）老张觉得这样傻等意义不大4 老张把响水壶放到火上，去客厅看电视，水壶响之前不再去看它了，响了再去拿壶。（异步非阻塞）老张觉得自己聪明了。所谓同步异步，只是对于水壶而言。普通水壶，同步；响水壶，异步。虽然都能干活，但响水壶可以在自己完工之后，提示老张水开了。这是普通水壶所不能及的。同步只能让调用者去轮询自己（情况2中），造成老张效率的低下。所谓阻塞非阻塞，仅仅对于老张而言。立等的老张，阻塞；看电视的老张，非阻塞。情况1和情况3中老张就是阻塞的，媳妇喊他都不知道。虽然3中响水壶是异步的，可对于立等的老张没有太大的意义。所以一般异步是配合非阻塞使用的，这样才能发挥异步的效用。
+
+在处理 IO 的时候，阻塞和非阻塞都是同步 IO。只有使用了特殊的 API 才是异步 IO。
+
+
+
+select、poll、epoll都是同步阻塞。
+
+
+异步
+linux AIO
+windows IOCP
+.NET BeginInvoke/EndInvoke
+回调处理数据，才是异步IO
+
+
+select、poll、epoll都是同步
+班长收作业，epoll遍历的集合变小了，
+
+是把阻塞点改变了位置。
+
+select、poll、epoll本身都是阻塞的。
+
+select外部阻塞，内部不阻塞，监视的socket是非阻塞的。
+
+I/O多路复用：虽然I/O多路复用的函数也是阻塞的，但是其与以上两种还是有不同的，I/O多路复用是阻塞在select，epoll这样的系统调用之上，而没有阻塞在真正的I/O系统调用如recvfrom之上。
+select一次调用，肯定要拿到，可读条件。
+
+
+
+阻塞式I/O；
+非阻塞式I/O；
+
+############################################################################################################################
 
 
 
