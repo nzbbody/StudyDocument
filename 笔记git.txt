@@ -1234,6 +1234,84 @@ select a1 from t1 where a1 =
 	)
 )
 ############################################################################################################################
+create database yytest;
+use yytest;
+create table bench(id enc int, name enc varchar(128));
+insert into bench value(1,"0123456789012345678901234567890123456789");
 
 
+复杂嵌套SQL的测试用例
+create database yytest;
+use yytest;
+create table a(a1 enc int, a2 enc int, a3 enc int, a4 enc int, a5 enc int, a6 enc varchar(64), a7 enc varchar(64), a8 enc varchar(64), a9 enc varchar(64), a10 enc varchar(64));
+create table b(b1 enc int, b2 enc int, b3 enc int, b4 enc int, b5 enc int, b6 enc varchar(64), b7 enc varchar(64), b8 enc varchar(64), b9 enc varchar(64), b10 enc varchar(64));
+create table c(c1 enc int, c2 enc int, c3 enc int, c4 enc int, c5 enc int, c6 enc varchar(64), c7 enc varchar(64), c8 enc varchar(64), c9 enc varchar(64), c10 enc varchar(64));
+create table d(d1 enc int, d2 enc int, d3 enc int, d4 enc int, d5 enc int, d6 enc varchar(64), d7 enc varchar(64), d8 enc varchar(64), d9 enc varchar(64), d10 enc varchar(64));
+create table e(e1 enc int, e2 enc int, e3 enc int, e4 enc int, e5 enc int, e6 enc varchar(64), e7 enc varchar(64), e8 enc varchar(64), e9 enc varchar(64), e10 enc varchar(64));
 
+insert into a value(10001,10002,10003,10004,10005,"Andy0", "Bill0", "Caroline0", "David0", "Eric0");
+insert into a value(10101,10102,10103,10104,10105,"Andy1", "Bill1", "Caroline1", "David1", "Eric1");
+insert into a value(10201,10202,10203,10204,10205,"Andy2", "Bill2", "Caroline2", "David2", "Eric2");
+insert into a value(10301,10302,10303,10304,10305,"Andy3", "Bill3", "Caroline3", "David3", "Eric3");
+insert into a value(10401,10402,10403,10404,10405,"Andy4", "Bill4", "Caroline4", "David4", "Eric4");
+insert into a value(10501,10502,10503,10504,10505,"Andy5", "Bill5", "Caroline5", "David5", "Eric5");
+insert into a value(10601,10602,10603,10604,10605,"Andy6", "Bill6", "Caroline6", "David6", "Eric6");
+insert into a value(10701,10702,10703,10704,10705,"Andy7", "Bill7", "Caroline7", "David7", "Eric7");
+insert into a value(10801,10802,10803,10804,10805,"Andy8", "Bill8", "Caroline8", "David8", "Eric8");
+insert into a value(10901,10902,10903,10904,10905,"Andy9", "Bill9", "Caroline9", "David9", "Eric9");
+
+insert into b value(10001,10002,10003,10004,10005,"Andy0", "Bill0", "Caroline0", "David0", "Eric0");
+insert into b value(10101,10102,10103,10104,10105,"Andy1", "Bill1", "Caroline1", "David1", "Eric1");
+insert into b value(10201,10202,10203,10204,10205,"Andy2", "Bill2", "Caroline2", "David2", "Eric2");
+insert into b value(10301,10302,10303,10304,10305,"Andy3", "Bill3", "Caroline3", "David3", "Eric3");
+insert into b value(10401,10402,10403,10404,10405,"Andy4", "Bill4", "Caroline4", "David4", "Eric4");
+insert into b value(10501,10502,10503,10504,10505,"Andy5", "Bill5", "Caroline5", "David5", "Eric5");
+insert into b value(10601,10602,10603,10604,10605,"Andy6", "Bill6", "Caroline6", "David6", "Eric6");
+insert into b value(10701,10702,10703,10704,10705,"Andy7", "Bill7", "Caroline7", "David7", "Eric7");
+insert into b value(10801,10802,10803,10804,10805,"Andy8", "Bill8", "Caroline8", "David8", "Eric8");
+insert into b value(10901,10902,10903,10904,10905,"Andy9", "Bill9", "Caroline9", "David9", "Eric9");
+
+insert into c value(10001,10002,10003,10004,10005,"Andy0", "Bill0", "Caroline0", "David0", "Eric0");
+insert into c value(10101,10102,10103,10104,10105,"Andy1", "Bill1", "Caroline1", "David1", "Eric1");
+insert into c value(10201,10202,10203,10204,10205,"Andy2", "Bill2", "Caroline2", "David2", "Eric2");
+insert into c value(10301,10302,10303,10304,10305,"Andy3", "Bill3", "Caroline3", "David3", "Eric3");
+insert into c value(10401,10402,10403,10404,10405,"Andy4", "Bill4", "Caroline4", "David4", "Eric4");
+insert into c value(10501,10502,10503,10504,10505,"Andy5", "Bill5", "Caroline5", "David5", "Eric5");
+insert into c value(10601,10602,10603,10604,10605,"Andy6", "Bill6", "Caroline6", "David6", "Eric6");
+insert into c value(10701,10702,10703,10704,10705,"Andy7", "Bill7", "Caroline7", "David7", "Eric7");
+insert into c value(10801,10802,10803,10804,10805,"Andy8", "Bill8", "Caroline8", "David8", "Eric8");
+insert into c value(10901,10902,10903,10904,10905,"Andy9", "Bill9", "Caroline9", "David9", "Eric9");
+
+insert into d value(10001,10002,10003,10004,10005,"Andy0", "Bill0", "Caroline0", "David0", "Eric0");
+insert into d value(10101,10102,10103,10104,10105,"Andy1", "Bill1", "Caroline1", "David1", "Eric1");
+insert into d value(10201,10202,10203,10204,10205,"Andy2", "Bill2", "Caroline2", "David2", "Eric2");
+insert into d value(10301,10302,10303,10304,10305,"Andy3", "Bill3", "Caroline3", "David3", "Eric3");
+insert into d value(10401,10402,10403,10404,10405,"Andy4", "Bill4", "Caroline4", "David4", "Eric4");
+insert into d value(10501,10502,10503,10504,10505,"Andy5", "Bill5", "Caroline5", "David5", "Eric5");
+insert into d value(10601,10602,10603,10604,10605,"Andy6", "Bill6", "Caroline6", "David6", "Eric6");
+insert into d value(10701,10702,10703,10704,10705,"Andy7", "Bill7", "Caroline7", "David7", "Eric7");
+insert into d value(10801,10802,10803,10804,10805,"Andy8", "Bill8", "Caroline8", "David8", "Eric8");
+insert into d value(10901,10902,10903,10904,10905,"Andy9", "Bill9", "Caroline9", "David9", "Eric9");
+
+insert into e value(10001,10002,10003,10004,10005,"Andy0", "Bill0", "Caroline0", "David0", "Eric0");
+insert into e value(10101,10102,10103,10104,10105,"Andy1", "Bill1", "Caroline1", "David1", "Eric1");
+insert into e value(10201,10202,10203,10204,10205,"Andy2", "Bill2", "Caroline2", "David2", "Eric2");
+insert into e value(10301,10302,10303,10304,10305,"Andy3", "Bill3", "Caroline3", "David3", "Eric3");
+insert into e value(10401,10402,10403,10404,10405,"Andy4", "Bill4", "Caroline4", "David4", "Eric4");
+insert into e value(10501,10502,10503,10504,10505,"Andy5", "Bill5", "Caroline5", "David5", "Eric5");
+insert into e value(10601,10602,10603,10604,10605,"Andy6", "Bill6", "Caroline6", "David6", "Eric6");
+insert into e value(10701,10702,10703,10704,10705,"Andy7", "Bill7", "Caroline7", "David7", "Eric7");
+insert into e value(10801,10802,10803,10804,10805,"Andy8", "Bill8", "Caroline8", "David8", "Eric8");
+insert into e value(10901,10902,10903,10904,10905,"Andy9", "Bill9", "Caroline9", "David9", "Eric9");
+
+
+select * from a where a1 = 10001;
+
+
+select a1,sum(a2) from a group by a1; 
+
+支持复杂嵌套SQL的一种场景，如果子查询本身不需要拆分执行，嵌套SQL语句可以支持。
+注：select * from a where a1 > 100; 不需要拆分，
+select * from a where a1 > 100 and a2+a3 > 200; 需要拆分。
+
+############################################################################################################################
